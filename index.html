@@ -1,0 +1,2329 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="theme-color" content="#ffffff"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="P2H MAKKURAGA GRUP"/>
+<link rel="manifest" href="./manifest.json"/>
+<title>P2H MAKKURAGA GRUP - Site Kolonodale</title>
+<style>
+:root {
+  --white:    #ffffff;
+  --bg:       #f5f5f4;
+  --surface:  #ffffff;
+  --border:   #e5e5e3;
+  --border2:  #d4d4d0;
+  --accent:   #d85a30;
+  --accent-lt:#fff0eb;
+  --accent-dk:#b84520;
+  --ok:       #16a34a;
+  --ok-lt:    #f0fdf4;
+  --nok:      #dc2626;
+  --nok-lt:   #fef2f2;
+  --na:       #2563eb;
+  --na-lt:    #eff6ff;
+  --text:     #1c1917;
+  --text2:    #57534e;
+  --muted:    #a8a29e;
+  --radius:   12px;
+  --shadow:   0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,.1);
+}
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html,body { height:100%; background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,-apple-system,sans-serif; font-size:14px; }
+
+/* ── TOPBAR ── */
+#app { display:flex; flex-direction:column; height:100%; }
+.topbar {
+  background:var(--white);
+  border-bottom:1px solid var(--border);
+  padding:10px 16px;
+  display:flex; align-items:center; gap:10px;
+  position:sticky; top:0; z-index:100;
+  box-shadow:var(--shadow);
+}
+.topbar-left { display:flex; align-items:center; gap:10px; }
+.topbar-logo {
+  width:36px; height:36px;
+  background:var(--accent); border-radius:9px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; flex-shrink:0;
+}
+.topbar-text .brand { font-size:13px; font-weight:800; color:var(--text); letter-spacing:-0.2px; }
+.topbar-text .sub   { font-size:10px; color:var(--muted); }
+.sync-btn {
+  margin-left:auto;
+  background:var(--accent); color:#fff;
+  border:none; border-radius:8px;
+  padding:7px 12px; font-size:12px; font-weight:700;
+  cursor:pointer; display:flex; align-items:center; gap:5px;
+  transition:background .15s;
+}
+.sync-btn:hover  { background:var(--accent-dk); }
+.sync-btn:disabled { opacity:.5; cursor:not-allowed; }
+.sync-badge {
+  background:#fff; color:var(--accent);
+  border-radius:20px; padding:1px 6px;
+  font-size:10px; font-weight:800;
+  min-width:16px; text-align:center;
+}
+
+/* ── PAGES ── */
+.page { display:none; flex:1; overflow-y:auto; padding-bottom:88px; }
+.page.active { display:block; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  background:var(--white);
+  border-top:1px solid var(--border);
+  display:flex;
+  position:fixed; bottom:0; left:0; right:0;
+  z-index:100;
+  box-shadow:0 -1px 8px rgba(0,0,0,.06);
+}
+.bnav-item {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:8px 4px 10px; gap:3px;
+  cursor:pointer; border:none; background:none;
+  color:var(--muted); font-size:10px; font-weight:600;
+  transition:color .15s;
+}
+.bnav-item.active { color:var(--accent); }
+.bnav-item svg { width:22px; height:22px; }
+.bnav-dot {
+  display:inline-block; width:6px; height:6px;
+  background:var(--accent); border-radius:50%;
+  position:absolute; top:6px; right:calc(50% - 16px);
+}
+
+/* ── OFFLINE BANNER ── */
+.offline-banner {
+  background:#fefce8; border:1px solid #fde047;
+  color:#854d0e; border-radius:10px;
+  padding:10px 14px; font-size:12px; font-weight:500;
+  margin:12px 16px 0; display:none;
+  align-items:center; gap:8px;
+}
+.offline-banner.show { display:flex; }
+
+/* ── HOME ── */
+.home-header {
+  background:var(--white);
+  padding:20px 16px 16px;
+  border-bottom:1px solid var(--border);
+}
+.home-header h1 { font-size:20px; font-weight:800; color:var(--text); letter-spacing:-0.5px; }
+.home-header p  { color:var(--muted); font-size:12px; margin-top:3px; }
+
+.stat-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:14px 16px 4px; }
+.stat-box {
+  background:var(--white); border:1px solid var(--border);
+  border-radius:12px; padding:14px 10px; text-align:center;
+  box-shadow:var(--shadow);
+}
+.stat-box .val { font-size:26px; font-weight:800; color:var(--accent); line-height:1; }
+.stat-box .lbl { font-size:10px; color:var(--muted); margin-top:4px; line-height:1.3; }
+
+.section-header { padding:16px 16px 8px; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; }
+
+.unit-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:0 16px 16px; }
+.unit-card {
+  background:var(--white);
+  border:1.5px solid var(--border);
+  border-radius:14px;
+  padding:16px 12px;
+  cursor:pointer; text-align:center;
+  transition:border-color .15s, box-shadow .15s, transform .1s;
+  box-shadow:var(--shadow);
+  position:relative; overflow:hidden;
+}
+.unit-card:active { transform:scale(0.97); }
+.unit-card:hover  { border-color:var(--accent); box-shadow:0 4px 12px rgba(216,90,48,.15); }
+.unit-card-stripe {
+  position:absolute; top:0; left:0; right:0; height:3px;
+  background:var(--accent); border-radius:14px 14px 0 0;
+}
+.unit-card .icon-wrap {
+  width:64px; height:64px; border-radius:50%;
+  background:#e8f0fe;
+  display:flex; align-items:center; justify-content:center;
+  margin:0 auto 10px;
+}
+.unit-card .icon-wrap svg { width:34px; height:34px; }
+.unit-card .label { font-weight:800; font-size:13px; color:var(--text); }
+.unit-card .sub   { font-size:10px; color:var(--muted); margin-top:3px; }
+
+/* ── FORM ── */
+.form-header {
+  background:var(--white);
+  border-bottom:1px solid var(--border);
+  padding:12px 16px;
+  display:flex; align-items:center; gap:12px;
+  position:sticky; top:0; z-index:50;
+}
+.back-btn {
+  background:var(--bg); border:1px solid var(--border);
+  color:var(--text); border-radius:8px;
+  padding:7px 12px; cursor:pointer; font-size:13px; font-weight:600;
+  transition:background .12s;
+  flex-shrink:0;
+}
+.back-btn:hover { background:var(--border); }
+.form-title-wrap .form-title { font-weight:800; font-size:15px; color:var(--text); }
+.form-title-wrap .form-sub   { font-size:11px; color:var(--muted); }
+
+.form-body { padding:14px 16px; }
+
+.form-section { margin-bottom:20px; }
+.section-label {
+  font-size:11px; font-weight:700; color:var(--accent);
+  text-transform:uppercase; letter-spacing:0.8px;
+  margin-bottom:10px; padding-bottom:8px;
+  border-bottom:2px solid var(--accent-lt);
+  display:flex; align-items:center; gap:6px;
+}
+.form-field { margin-bottom:12px; }
+.form-field label { display:block; font-size:13px; font-weight:600; color:var(--text2); margin-bottom:6px; }
+.form-field input,
+.form-field select,
+.form-field textarea {
+  width:100%; background:var(--white);
+  border:1.5px solid var(--border);
+  color:var(--text); border-radius:9px;
+  padding:10px 12px; font-size:14px;
+  outline:none; font-family:inherit;
+  transition:border-color .15s;
+  -webkit-appearance:none;
+}
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(216,90,48,.1); }
+.form-field textarea { resize:vertical; min-height:72px; }
+
+/* ── PROGRESS BAR ── */
+.chk-progress-wrap { margin-bottom:14px; }
+.chk-progress-info { display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; }
+.chk-progress-info span { font-size:11px; color:var(--text2); font-weight:600; }
+.chk-progress-bar { height:6px; background:var(--border); border-radius:99px; overflow:hidden; }
+.chk-progress-fill { height:100%; background:var(--accent); border-radius:99px; transition:width .3s; width:0%; }
+
+/* ── CHECKLIST ITEM ── */
+.chk-item {
+  background:var(--white);
+  border:1.5px solid var(--border);
+  border-radius:12px;
+  padding:14px 14px 12px;
+  margin-bottom:10px;
+  transition:border-color .15s, box-shadow .15s;
+}
+.chk-item-top { display:flex; gap:10px; align-items:flex-start; }
+.chk-num {
+  min-width:26px; height:26px;
+  background:var(--bg); border-radius:7px;
+  font-size:12px; font-weight:700; color:var(--muted);
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; margin-top:1px;
+}
+.chk-text { font-size:14px; color:var(--text); line-height:1.6; flex:1; }
+.toggle-group { display:flex; gap:8px; margin-top:11px; }
+.toggle-btn {
+  flex:1; border:1.5px solid var(--border);
+  background:var(--bg); color:var(--muted);
+  border-radius:9px; padding:9px 4px;
+  font-size:13px; font-weight:700;
+  cursor:pointer; transition:all .12s;
+  text-align:center;
+}
+.toggle-btn.ok  { background:var(--ok-lt);  border-color:var(--ok);  color:var(--ok); }
+.toggle-btn.nok { background:var(--nok-lt); border-color:var(--nok); color:var(--nok); }
+.chk-item.is-ok  { border-color:var(--ok); }
+.chk-item.is-nok { border-color:var(--nok); box-shadow:0 2px 8px rgba(220,38,38,.12); }
+
+/* ── SUBMIT ── */
+.submit-btn {
+  width:100%; background:var(--accent); color:#fff;
+  border:none; border-radius:12px;
+  padding:14px; font-size:15px; font-weight:800;
+  cursor:pointer; margin-top:6px;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:background .15s; letter-spacing:-0.2px;
+}
+.submit-btn:hover:not(:disabled) { background:var(--accent-dk); }
+.submit-btn:disabled { opacity:.5; cursor:not-allowed; }
+
+/* ── HISTORY ── */
+.hist-header { padding:16px 16px 4px; }
+.hist-header h2 { font-size:18px; font-weight:800; letter-spacing:-0.3px; }
+.hist-header p  { font-size:12px; color:var(--muted); margin-top:2px; }
+.hist-filter { display:flex; gap:7px; padding:10px 16px 12px; overflow-x:auto; scrollbar-width:none; }
+.hist-filter::-webkit-scrollbar { display:none; }
+.hist-filter button {
+  background:var(--white); border:1.5px solid var(--border);
+  color:var(--text2); border-radius:20px;
+  padding:5px 13px; font-size:12px; font-weight:600;
+  cursor:pointer; white-space:nowrap; transition:all .12s;
+}
+.hist-filter button.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+
+.hist-list { padding:0 16px; }
+.hist-item {
+  background:var(--white);
+  border:1.5px solid var(--border);
+  border-radius:12px; margin-bottom:10px;
+  padding:13px; display:flex; gap:12px;
+  box-shadow:var(--shadow);
+}
+.hist-item .status-dot { width:9px; height:9px; border-radius:50%; margin-top:5px; flex-shrink:0; }
+.hist-item .status-dot.synced  { background:var(--ok); }
+.hist-item .status-dot.pending { background:var(--accent); }
+.hist-item .status-dot.error   { background:var(--nok); }
+.hist-item-info { flex:1; min-width:0; }
+.hist-item-info .unit { font-weight:700; font-size:13px; color:var(--text); }
+.hist-item-info .meta { font-size:11px; color:var(--muted); margin-top:2px; }
+.hist-status { font-size:10px; font-weight:700; margin-top:5px; display:inline-block; border-radius:20px; padding:2px 8px; }
+.hist-status.synced  { background:var(--ok-lt);  color:var(--ok); }
+.hist-status.pending { background:var(--accent-lt); color:var(--accent); }
+.hist-status.error   { background:var(--nok-lt); color:var(--nok); }
+
+/* ── SETTINGS ── */
+.settings-body { padding:16px; }
+.settings-section { margin-bottom:22px; }
+.settings-section h3 { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px; }
+.settings-row {
+  background:var(--white); border:1.5px solid var(--border);
+  border-radius:11px; padding:13px 14px;
+  margin-bottom:8px;
+  box-shadow:var(--shadow);
+}
+.settings-row label { font-size:12px; font-weight:600; color:var(--text2); display:block; margin-bottom:6px; }
+.settings-row input {
+  width:100%; background:var(--bg); border:1.5px solid var(--border);
+  color:var(--text); border-radius:8px;
+  padding:9px 11px; font-size:13px;
+  outline:none; font-family:inherit; transition:border-color .15s;
+}
+.settings-row input:focus { border-color:var(--accent); }
+.save-btn {
+  width:100%; background:var(--accent); color:#fff;
+  border:none; border-radius:11px;
+  padding:13px; font-size:14px; font-weight:800;
+  cursor:pointer; transition:background .15s;
+}
+.save-btn:hover { background:var(--accent-dk); }
+.danger-btn {
+  width:100%; background:var(--white); border:1.5px solid var(--nok);
+  color:var(--nok); border-radius:11px;
+  padding:13px; font-size:14px; font-weight:700;
+  cursor:pointer; margin-top:8px; transition:background .12s;
+}
+.danger-btn:hover { background:var(--nok-lt); }
+
+/* ── MODAL ── */
+.modal-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,.45); z-index:200;
+  align-items:flex-end; justify-content:center;
+}
+.modal-overlay.show { display:flex; }
+.modal-box {
+  background:var(--white); border-radius:20px 20px 0 0;
+  width:100%; max-height:88vh; overflow-y:auto;
+  padding:0 0 32px; box-shadow:0 -4px 24px rgba(0,0,0,.15);
+  animation:slideUp .22s ease;
+}
+@keyframes slideUp { from{transform:translateY(60px);opacity:0} to{transform:translateY(0);opacity:1} }
+.modal-handle {
+  width:40px; height:4px; background:var(--border2);
+  border-radius:99px; margin:12px auto 0;
+}
+.modal-header {
+  padding:14px 16px 10px;
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.modal-header h3 { font-size:15px; font-weight:800; color:var(--text); }
+.modal-close {
+  background:var(--bg); border:1px solid var(--border);
+  border-radius:8px; padding:5px 11px;
+  font-size:12px; font-weight:700; cursor:pointer; color:var(--text2);
+}
+.modal-body { padding:14px 16px; }
+.modal-meta { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.modal-meta-item {
+  background:var(--bg); border-radius:9px; padding:10px 11px;
+}
+.modal-meta-item .lbl { font-size:10px; color:var(--muted); font-weight:600; text-transform:uppercase; }
+.modal-meta-item .val { font-size:13px; font-weight:700; color:var(--text); margin-top:2px; }
+.modal-chk-list { display:flex; flex-direction:column; gap:6px; }
+.modal-chk-row {
+  display:flex; align-items:flex-start; gap:10px;
+  padding:9px 11px; border-radius:9px;
+  background:var(--bg); border:1px solid var(--border);
+}
+.modal-chk-row.ok  { background:var(--ok-lt);  border-color:#bbf7d0; }
+.modal-chk-row.nok { background:var(--nok-lt); border-color:#fecaca; }
+.modal-chk-row.empty { background:#fffbeb; border-color:#fde68a; }
+.modal-chk-num { font-size:10px; font-weight:700; color:var(--muted); min-width:18px; margin-top:1px; }
+.modal-chk-text { font-size:11px; color:var(--text); flex:1; line-height:1.5; }
+.modal-chk-badge {
+  font-size:10px; font-weight:800; padding:2px 7px;
+  border-radius:20px; flex-shrink:0; margin-top:1px;
+}
+.modal-chk-badge.ok  { background:var(--ok);  color:#fff; }
+.modal-chk-badge.nok { background:var(--nok); color:#fff; }
+.modal-chk-badge.empty { background:#f59e0b; color:#fff; }
+.modal-section-lbl {
+  font-size:10px; font-weight:800; color:var(--accent);
+  text-transform:uppercase; letter-spacing:0.8px;
+  margin:10px 0 5px; padding-left:2px;
+}
+.retry-btn {
+  background:var(--accent-lt); border:1.5px solid var(--accent);
+  color:var(--accent); border-radius:8px;
+  padding:6px 12px; font-size:11px; font-weight:700;
+  cursor:pointer; margin-top:8px; display:inline-flex; align-items:center; gap:5px;
+}
+.retry-btn:active { background:var(--accent); color:#fff; }
+
+/* ── CONFIRM DIALOG ── */
+.confirm-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,.5); z-index:300;
+  align-items:center; justify-content:center; padding:20px;
+}
+.confirm-overlay.show { display:flex; }
+.confirm-box {
+  background:var(--white); border-radius:16px;
+  padding:24px 20px; width:100%; max-width:320px;
+  text-align:center; box-shadow:var(--shadow-md);
+  animation:fadeIn .18s ease;
+}
+@keyframes fadeIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
+.confirm-box .icon { font-size:36px; margin-bottom:10px; }
+.confirm-box h4 { font-size:16px; font-weight:800; color:var(--text); margin-bottom:6px; }
+.confirm-box p  { font-size:13px; color:var(--text2); line-height:1.5; margin-bottom:18px; }
+.confirm-btns { display:flex; gap:10px; }
+.confirm-btns button { flex:1; padding:11px; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; border:none; }
+.confirm-cancel { background:var(--bg); color:var(--text2); border:1.5px solid var(--border) !important; }
+.confirm-ok     { background:var(--nok); color:#fff; }
+
+/* ── EMPTY ── */
+.empty-state { text-align:center; padding:48px 20px; color:var(--muted); }
+.empty-state .icon { font-size:42px; margin-bottom:12px; }
+.empty-state p { font-size:13px; }
+
+/* ── TOAST ── */
+#toast {
+  position:fixed; bottom:96px; left:50%; transform:translateX(-50%);
+  background:var(--text); color:#fff;
+  border-radius:20px; padding:10px 18px;
+  font-size:13px; font-weight:600;
+  z-index:999; opacity:0; transition:opacity .25s;
+  white-space:nowrap; max-width:88vw; text-align:center;
+  box-shadow:var(--shadow-md);
+}
+#toast.show { opacity:1; }
+#toast.ok-toast  { background:var(--ok); }
+#toast.err-toast { background:var(--nok); }
+
+/* ── UNIT SEARCH DROPDOWN ── */
+.unit-search-wrap {
+  position: relative;
+}
+.unit-search-wrap input[type="text"] {
+  width: 100%;
+}
+.unit-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: var(--white);
+  border: 1.5px solid var(--accent);
+  border-radius: 10px;
+  box-shadow: var(--shadow-md);
+  z-index: 150;
+  overflow: hidden;
+}
+.unit-dropdown.open { display: block; }
+.unit-dropdown-list {
+  max-height: 220px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.unit-dropdown-item {
+  padding: 11px 14px;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background .1s;
+}
+.unit-dropdown-item:last-child { border-bottom: none; }
+.unit-dropdown-item:active,
+.unit-dropdown-item.selected { background: var(--accent-lt); color: var(--accent); font-weight: 700; }
+.unit-dropdown-empty {
+  padding: 14px;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* ── SPINNER ── */
+.spinner { display:inline-block; width:16px; height:16px; border:2.5px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .6s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* ── CHECKLIST SECTION HEADER ── */
+.chk-section-header {
+  display: flex; align-items: center; gap: 10px;
+  margin: 20px 0 10px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dk) 100%);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 13px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  box-shadow: 0 2px 8px rgba(216,90,48,.3);
+}
+.chk-section-header svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* ── PIN DOT ── */
+.pin-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--border2);
+  background: var(--bg);
+  transition: background .15s, border-color .15s;
+}
+.pin-dot.filled { background: var(--accent); border-color: var(--accent); }
+
+/* ── UNIT CARD SINGLE (full width) ── */
+.unit-card-single {
+  display: flex; align-items: center; gap: 16px;
+  background: var(--white);
+  border: 2px solid var(--accent);
+  border-radius: 16px;
+  padding: 20px 18px;
+  margin: 0 16px 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(216,90,48,.15);
+  transition: transform .1s, box-shadow .15s;
+  position: relative; overflow: hidden;
+}
+.unit-card-single:active { transform: scale(0.98); }
+.unit-card-single .icon-wrap {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--accent-lt);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.unit-card-single .icon-wrap svg { width: 36px; height: 36px; }
+.unit-card-single .info { flex: 1; }
+.unit-card-single .info .label { font-weight: 800; font-size: 17px; color: var(--text); }
+.unit-card-single .info .sub   { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.unit-card-single .arrow { font-size: 22px; color: var(--accent); }
+.info-box {
+  background:var(--accent-lt); border:1px solid #fbd5c4;
+  border-radius:10px; padding:10px 13px;
+  margin-bottom:14px; font-size:12px; color:var(--accent-dk);
+  line-height:1.5;
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo" style="background:none;padding:0;overflow:hidden;"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAIAAAABc2X6AAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRAD/AP8A/6C9p5MAAAAHdElNRQfqBhwIFgGLCFs6AAAWj0lEQVR42tVcebAlVXn/feec7nvvu2+flWGGYVYG2RWZzAQdRRhGCzJjYkxFRcuYSqRIhZhS1HKNCqUsajRlGRNRs1VCREACIqsMwwz7UjKMwOzbm423v7t0n3O+/NHd9/Z635uEVJlTXfX6dp/l2863nn5kfA9gxBoDlgFAEgQREwj/D1qAAwHWsmEAECHkFL0ngMn4zdgossxEkFKCYLSp+dZy2BWZwXnrxjsg2Ydiz5F8SwU9OTOQCcTt4ak+kERdrhRSAmy0YYZIskvFf1hmKYVlPLpn5Je7hncP18c9YzixKgGcg3AWmRT1s/gn3yTohfYiQAzD9ACKdSUwA5JosKyWz+p615L+taf1SwmjbRznNocNw3HkrhO1r2/Z/+ShcQLKSkgB/A8lmjPcznbI4vkGNN9yU1sCLlzQ8+mLF6+c0+X7RlLIoRDhANtnDo7/9X07xz09UFbaouYbbfl/u34MaU5w8I1GNCKdElR1pCCMNnTVkTevX75mcZ/vGxnIi/GblqGU2D3c+OgdO+rGVh050vC7XXn23O55VacDlDMHOstNPklsZ95/aNL79dGphrH9JTXlG0fQrZvOPGNORftWEEj7TQBSiqvvfnXbwbGBsjPS0JctHbh29akL+1wmQrBxOzURwyUXtSQLpkc/rjUMQDPQDuFWBpjY7h72btp6IEBntOGfP7/n1o2rmC0D5HlNx5GP7xv7i3te7SvL0Ya+bOngTRuWs2VLkgNdEMO4vULwnJl9L3pE08B0UuxkBhE5LgdaM0X1vFmJmYkEs4TRFtfc/cpTQxN9JTnS0N/ZsGLd0gHfNyoY+vDuEctsmbtdefVbTwWztrAv3G52bYVwAGYwrAXbcCkKZ1erLnXOfQ+0FwCUMBERGJQBMqW18yAHCQE23rZ/1nuegDVJAxGTDQICykdP5KrLzHkbXcXXrln0J3ftsAxmPLZ/bN3SQWZWggjW7B6puVLUfHvB/J6l/Y4hZZ+/rX77J8mttICPgEuA5794J/g77vlXsleHkK13uTyl4ptMs1Dlxh1f8Z78MZW6A0w7qYzAKBEI8F+6tyKEuWDTmbNKq2ZXtx+bdCXtHqnDWilICSJP83jTSIGG5vndLqRgQO/cTKUu6hqA1cFKIut8kIDfaD74TbX0d6h7FowPogIJDvjP1P5ZqP/ZGuFW/Bf+y3v230X/ArBN9aUYhq1XwcwkFDPr1x6TF2wiRfOqzouWS0qMNrSnrSNDfdOeTxChZegZMJqthbWwNn7D1sAaNj6pkh072Hzk70gIZpvlQB5a1IFVzEyqZMeONB64iUpdsIZtsNssoovZcrC/bPth9MoAICGDJZQgDukTESQGV8vxDPjAAHMBVC3Q2Rqq9PnP/1Tv3EZuha1FcWvr0/DKl00SovHLm+z4EKlSQMTWcMJM/AKGNa2VUhgIJBenzNgMcJxhEYHQeOBmeI2ItEVI5i/S7mENOWXvhZ/7v76buvrY6khqOVCcnCB3MTM4ktH23uc2wnGAmBPTUR4BkkMYbMitmkMvelt/TMrhiLoZxFPaOj01MZNTsqNDzQduJrcSAZ012h2MHGd+x2SUEgiHEHDSl4yhn/Uf2gPZGqr0Nh//oTnyWgzWBM0zKi8POBKN+27k8SOkSmCbWI4EiKI9WMRkak0VWzsiEycQTgzhvFk6NoZQaI43H/xmCqC8+ChvvDXCKXvP36W334O2MAdqRQCA34BXg18HGCSmE+wMvyLBjiMcUCOJXtubKII7urEalV79ykP+83fBKecKdrEhYnLKdvRw84GbkRBmBkn4DRhfzFoqFp4v5q4CA34jwjl7xZmU490oFAOBzuYyK5zMcMvNh/9WLV9L1UEYDUoogWJRYRA17ruRJ46iqx9Wh4+FRLMm5qwsb/wKzV3JQgkwn9hdv+Oz9tgrcMrJvcPRKrnuengvOlI++ybr68du2JIq8+j+5sPfhZDMnUxUewlryCn7z93hb783wpbCTas9KvdX/ujbYuE5UklHEcHK+SvL6z+VBzMlWZrCNa6lp1d7lBGPjEiH0GtU+v3nbtc7t05rloFImEcONR+8hdxKpKg49I+9RnnDZzB7sTSNbfvHvvjgrgNjTYLF7CXUNRiRJgtyJ9+nvYdDqU9tYcoZE3LY6ryQHgRAoPnALblmOQ88atz3DTt5LK6ZSShMjThvfp84/0rF3ssnvE/ev/PWF4bufe11QFgICAHmPMByAW5zVaC4C/LMEpGAV5Onnld5743wGyCKaQgCwGzJrdpDL3pbbi02y4E4GHLK/jO3+y//gir93Nq6JNiriTkr3fWfEtbUPf7Kr/ZoxtyqazlrQNLblWJwZ5FKczh7n5KAlmvqnH25c+4m1McQsrFNb7YGld7m1h+aoVciwc54MGzJKZvhA82HvkmlKtjEFmIwla/4Elf7hbDf2nZw+/Gpbld4xiLle7TxSnGmUC21lBanuwQmsCAYC7IHpUv/ivoXQTfaPnlrUSHhTzXu+zqYSQi2PodRR3BpIgJR494b7NQJSLe9vpBcG3Pf9me0bLUD7/7XRv9j+7H+stI27iKkuJrw2+KeRFZCRV63yINOs5fb65GAtdQ7t/SuT7DXIKI0D61Budfsfrxxz/VQrnAqwimRWya3TE5JOBVSpeZD3zWvPESV3oQdaoyrJWucdVcr6x8e82/csq+sREcnI2a0W45kLLpJohDY4eJ4PJMQjj0Qgr2ac/6VescDesd9qMTsZ4izpkqv/9S/2BO7nbM2UNdA67mdGta/ecjs2YZKL2xMmI1Gqbd0xZdIKljv+s37jtf8vrLUtpVPT4o0UdIGdfDrQrqo7Jsi5PMagbm0/pN63zPQNQgZyQZF+8Si3GP2btM7N7fzIczMlqSDUhXxLL8QPDVe2XQD5i2X8H/0wrFH944Odjl5qeIgu0EZi0sMgERSaWUdj+mYW6gDSLDfkLNOK73jGm5MEsmcGIMN3CpVB6jSi+Dq6qPqIErdUYYMgSvOtVH3vE3ywj902HtxaOr7Tx/sKytjE5YmJI8qhUGvCCKK9kUk2atRpS+gbAz4jFlKczddAckPzUhI6zfdi/5YLXsbN8aRY3gJbGFN8tJgE5NMAb8uBpe47/6sZDPVtF97dK/mBAsD66AZgE/VXnf1h2AtvBq8evvyG1wfk3NXuWs+EqSgKKN1VRynJEOnl+l23CVE+fLrpm79UJBeTDoAKXuX698Dxpav+CK6Bwn+t7Yd2nGiNlhxdMyeBQnHHcenAAG/KdZ+tLxinZ08QRRXaQS2ct5K0T1g/CZc1c4qRuuq9IN8vDqUCwM/oS4XnOle/KfNB2+h6mBae3WahyEUTw2X3n4NrbhYwfvFq6O3bT86UFbaJtw4y1R15dOHJ+7cfmzTWfMtG5q3nOavSObimYmIrTFh2jhT6uXiaCnF7zyc28keIVl7pd/9mP7NI/bIS3DjjkTK3eNYyQ8kJDfG1eLVzjuvUewfHPNv2rKv4khOTI+W+1SSdMOW/U8emjh7blVQmPOJQ2YYA2XnXUsHXdleJS5KM0E4gTm1/qR2gbXklssbPl37yUcBm63c5ogSERtNpd7SlV8mx2XjXb953+t13VuShvOXF0SCcO9rr9/96olcgZFEE565bu2ij69emExYRfouC0acJJQIPmJ6MslhACQEe3V1+lvc1Vc1t/y9qA5GvnE+2gBAkhvj5Y3XY/4KCf8fnju6ed/orK7W1s2NhEBAb0nGSw3xGQVBCnrpeK0oJzVzXzrMvHUokZCQbHz3HVfLeavYq0U2L1/Dk1BcG3HO3Sjf+n4H/rMHJ3/wzKH+0A510pcMGIa2MBbahjfRxcaCmVUkhzYxLolwJneQikTyA8U0NMZQubu0/joYTSQyPnbo95Jw2KuJwdNL7/msZDtRN1/bvJcpJKek9iVmcMUtsRCwgOFo1/O0e7jQInVSWjG+Cfbqzhlv1xdd5W35PnXPhhA5Dl9jHMItb7yeu2cR/Ju3Htg5XB+oKMuwzONNA0AQEUXiUVSw5Ta4FHU0Fm87ra/IrOQrrXZyM91m4HAKydorb/gUlXv85/6Tm5MJySAiIemUs0vrr+Mlb3Xh/3zH8M92HO8vK8uoa9ul5AfOmX3evGpVQRA5gkIeJpcO1ImNyokUTEzQhnvK6oy5Pdo3ypExmDN2OINWqyw2fUI0ZUCCn6VL/9Jd/QEzfsxyS/ERCKTK1H+qcFxFesfR+k1b9nW7EkBD20U9pW9vWHH6rIplCs5MzdCnj/jNRMTMVvvcTsLG8v7MxRyOchkzyf9mS/0MkFdHdUD1zBYhJG2oAEPsP7534m8e3dMwtqyEZYDx+XWnnz6r0rQCY0P6lV/x5DCsB7aUDdeLALFGnnJW6ezLc/L8AIhUdghmQtW8rU4gDgvUIIBJStih0foTB8b8KAawzIYx3DDPDk28eGTSkVRSgoGaby5c0HvhgqpmKQ7/uv5v19ixQ1Hi6mQaCe3VaeP1au2HAS/Lrw4cRkwnxJ2tacgQdLIMJenIhPexn7+yd7QhBaWUniup6kowLLMk8i2vmFWBEMxoPvgtO35Y9M6FNVn7l3qStrZCcm1U73pMrf1wLrQthFNZokjp5Xln8bWzU1LISUDIzftG9441FvSW2jEtw4KZwUAqI1cSBCiujdmRA1SqsvEKcnFhbT3j/jBAzAxmkjIJTgcOJ72D5ErZfFIa+djhAAC8uL8M4NiUFyiPwDfsckQg/OmVo8G5b1vQcZrOyXxNOElhvrbQtWTKKixKMTVO4XTdmWC0Wb2w7xuXLnt076hhFkSCaMo3LwxN+MyOSGOVqCQX7FxO/M26uVw8NI1wQqTzHdk8xUcFUh28MsZcsWrOlWfO5zCs0YLEcwfHP/HLnU1jZUE9vzCn3LFolHjSclQywMUL4u0eBe7WDJV3bNNLpbX1J0f01KiuT1qopmfevLD/vWfOmfKMSJc5or+B3c5dTUgSioSCUBAye5FUJAQbkwAoBmCGw29EoyAwUyV7fHfjzs/xxFESgpnVsovVhs8A6szZlRxnMZ+lrXcEMNfGpqnRCcGNKbnoLQCicz6JCQvjYe583rBT5TM8SkAEf/t9Ztdm6p0XFLi9J/9JnLUBy9eIztaV4gaCEJyRZkOQzvm/L+Yss0wJ1WV1O8fCRgyc5p6zwWofSmSPbBQqrWn2cEehj0XdFm6VpMNERBJuGbqeu1x8lXDDJzKtBN8rbfq6e/7vWWsECcpzOwMnjoms9sA2z8ugfJHOjdYTgEZbPZfTlMKZOTS9LRnrJD0ZSEiwboqBxepNl1ntCdgdx2tD482WM9MiDAGWeW7VfdP83gKWdOBw2mTkJxCmaekToZ0kuaPGtlSqWghHybtfHv78I3sEZfIv4S1pa7+07vT3nTMvb73iRHzySFo2oi2OIBNUyXHO4s8pPWURMRgkSAiA73ntdSL0lVWPK3tKsqcke1zZuu8rS0H0xMHxIrZ0SOLlZrlO1pVPpk0iRKPvTbJpljyiRVMRKNgagmAspyswgQwLJoIjRf6G45kqrZNHNTYNpbZ+QQIj7XilY8K2axF/LpKaOPj0SJvW0Yk0OB3scC6sMzXXVPAgtuky0p523DOp0Yy3y+CxhrGxI6GCaNIzK2Z1hfouUxrqLNI0w5pL/mAgeTi8jQShs9+RUr15tCNYy0qI979p1tyqY4wBQESWeVFfef3y2bEUT6J1TsTPMAzu0AqcxzSGOT8jic4xtyAIUF2bL69bvOms+cZaQYIojByIyGjPFhxE7ZCIn75xx62ejtDixqMzATtl0sI1LXPFkefMrwLWr43z3qfYahCBLbnd7tLVYR0zs1DhHua2Izpz9ia2YXKjUlpkp/elk4FuOjgHAKs1IOwTP/Hu/wZV+sAWJLg5Re/+nFr354CXXSO/8oAgZMknMIqGtB4mI2Yq2IVFU0df1sXfBN51xAOKZCDoZceOUqWXuvpR6aVKH5WqZv/TRet0qDykgOGiKYpI0sqHJTdTwPgiobZU6qZSF7wGhAyPDAvJxocQUCp2VC82p1Ac1tktWwMwpJNPZM7Gw/GXBWzr3GbSL5fnU74FLCundMm16BpEfQLNSTSnUJ8gp+pc9EEAbLlpst8lWKSUR+tEX4oRRXaYgRkeDUWsBpODKqX2Yb4usoyKI546ND5SMwMV9s54Z/njd9ijr4bnCUiIWYsxuEhC75vQu4frJSWTwM1YyzBUcWouazXS/kIqxZM3EaVtUZ5aZ3BJisMTza/+as9XL1lSLRvum0d980M9xcRgIlNvmlse3z/h6W5Xpg7uU4zonewNkSpmD+X/5DbrqLg3Zx8XOBbBA8Pc7cpH9o6877aptYv65nQpwUwEExpXMebZrfvHDk402ti2QMjJcxX5sKxSsCbiWMo/4xM/CNWJmsGCiTUFYs5ECpjgQ8Dhur5t+7HcwKXiyKojDYd1amKy0WeJreJVW5GHo9LGTKVIHlCMAOqey96UqPRyaogQ7DeoVAUSJaNsCwNIv0FEgcyxDg4pYk63CyLLUKJl/sJ5SkpUnHxCB8XUoJgYlL+7gp7WJyIiwcQQkhls/GCISR+eJgWAiAJeCqKRhgYTmN21HzH7n7cndma/qBC9C9zVVyXoVCAFatUl8tmf2uG9EAqmLpesVaddYIxeMaf7qnPn/ej5I5QUyTbd82ZuiakANPNV585f2Fc2gJy9VHt1CCc8+2V8tWJd4I6NNrQgYoYSJIOinu81lSOvvefVx/aNVRxRccS//sFZ87qkDyn8uj2+K/h0oZ1fIBIDC6lnTuuL0jRX29l/JuVwfcKe2EsACylmn05uha0GBAnafmTy8ERTiPZ+I5AIi70h1pRUlMGhFmYMVNTKOVVYG3wpoA+8COMRiK2mrgEsONuRNDTpffD2lz1jpzxzyZLBW9693PeNsgBAaxb1PbxnpF+p41P+D5459IV3LpPGZ1WiRecF/k102IiJiI1hvwkSHfzdAAX2PbhVOu28cKD22YQfm1nD55zSffaCHvB0rnVq8qACzuxrC4DYQjpy+Zqo8kdgJtYQ4h+fHXq95g92Ob41F53aE7hqShJgzfplA7c+PzTe1H1l9bMdJxj4+IUL5lYdZg9R9aqNjSBIlfgHE22hS2Y2A6KwBwBMkASSYfaIGBw5sCcTubSAcRwROqHMwRKBFJLF8Zr+3tP77vzNib6yqvnmlB73smWDsEYSyPhNw3AcdftLR7/wyJ7ZXQ6AsYburzgrBipVV3Dmw91YuY6jqDxhKELr2a6JJSwfpadp/Wh9AtyavKVmE8OLvNygU03bncP1kbrfV1YMDNf8Gy5duvHMub6vQ4QRlHMd+Z1tB77/zOHekqw40je27ltmBgVxex4zOfHr/7ZRiuKpmLqdURFAxRGOEFO+qXnmE2sWfezCBdo3ga4IEQ6CA6XkXS8f/97Thw5NNJUQrizcXJwPUvotFXTOZfIbRRdmeMZqi9P6SteuXnj5ylktbNsIhzgzlKNGppr37xp54uD44YmmsZxNLcdPwSXVcvLcWgo/ng6/BAdPUmba1VJIQQt7S2sW9a1fNtBbcXxfi5i3kPpfPDAMKUkICWZjTN73KL/FLUQ4+F9CZI0xhmXSi0kjHBDL2PYht0y4EA/QOZbK4HTUjsDvT2TyUj8jKGKCwokXkXbIs10MRo6rxwzLwWmDvAgh9u+lKLn7Tvb8zG9Ry0sSh9j8N21Q5WwaOnd6AAAAAElFTkSuQmCC" style="width:36px;height:36px;border-radius:9px;display:block;object-fit:cover;"/></div>
+      <div class="topbar-text">
+        <div class="brand">P2H MAKKURAGA GRUP</div>
+        <div class="sub">Site Kolonodale</div>
+      </div>
+    </div>
+    <button class="sync-btn" id="syncBtn" onclick="syncAll()">
+      ↑ Sync
+      <span class="sync-badge" id="syncBadge" style="display:none">0</span>
+    </button>
+  </div>
+
+  <!-- PAGE: HOME -->
+  <div class="page active" id="page-home">
+    <div class="home-header">
+      <h1>Pemeriksaan P2H</h1>
+      <p id="homeDate" style="color:var(--text2);font-size:13px;font-weight:500;margin-top:4px;"></p>
+    </div>
+
+    <div class="offline-banner" id="offlineBanner">
+      📡 Mode Offline — data tersimpan di HP, sync otomatis saat online
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="val" id="statToday">0</div>
+        <div class="lbl">P2H Hari Ini</div>
+      </div>
+      <div class="stat-box">
+        <div class="val" id="statPending">0</div>
+        <div class="lbl">Belum Sync</div>
+      </div>
+      <div class="stat-box">
+        <div class="val" id="statTotal">0</div>
+        <div class="lbl">Bulan Ini</div>
+      </div>
+    </div>
+
+    <div class="section-header" id="unitSectionHeader">Unit Saya</div>
+    <div id="unit-grid-container"></div>
+  </div>
+
+  <!-- PAGE: FORM -->
+  <div class="page" id="page-form">
+    <div class="form-header">
+      <button class="back-btn" onclick="askGoHome()">← Kembali</button>
+      <div class="form-title-wrap">
+        <div class="form-title" id="formTitle">Form P2H</div>
+        <div class="form-sub" id="formSubtitle"></div>
+      </div>
+    </div>
+    <div class="form-body" id="formBody"></div>
+  </div>
+
+  <!-- PAGE: HISTORY -->
+  <div class="page" id="page-history">
+    <div class="hist-header">
+      <h2>Riwayat P2H</h2>
+      <p id="histCount">—</p>
+    </div>
+    <div class="hist-filter">
+      <button class="active" onclick="filterHist('all',this)">Semua</button>
+      <button onclick="filterHist('pending',this)">⏳ Pending</button>
+      <button onclick="filterHist('synced',this)">✅ Tersync</button>
+    </div>
+    <div class="hist-list" id="histList"></div>
+  </div>
+
+  <!-- PAGE: SETTINGS -->
+  <div class="page" id="page-settings">
+    <div class="home-header">
+      <h1>Pengaturan</h1>
+      <p>Konfigurasi profil driver / operator</p>
+    </div>
+    <div class="settings-body">
+
+      <!-- PROFIL OPERATOR -->
+      <div class="settings-section">
+        <h3>👤 Profil Operator</h3>
+        <div class="settings-row">
+          <label>Nama Lengkap</label>
+          <input type="text" id="defNama" placeholder="Nama lengkap driver / operator"/>
+        </div>
+        <div class="settings-row">
+          <label>Tipe Unit yang Dioperasikan</label>
+          <select id="defUnitType">
+            <option value="">-- Pilih Tipe Unit --</option>
+            <option value="dt">Dump Truck</option>
+            <option value="exa">Excavator</option>
+            <option value="gdv">Grader / Dozer / Vibro</option>
+            <option value="lv">Light Vehicle</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="save-btn" onclick="saveSettings()">💾 Simpan Profil</button>
+
+      <!-- GANTI TIPE UNIT — butuh PIN supervisor -->
+      <div id="pinSection" style="margin-top:20px;display:none">
+        <div class="settings-section">
+          <h3>🔒 Ubah Tipe Unit (Supervisor)</h3>
+          <button onclick="unlockUnitType()"
+            style="width:100%;background:var(--white);border:1.5px solid var(--accent);color:var(--accent);
+            border-radius:11px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;
+            display:flex;align-items:center;justify-content:center;gap:8px;">
+            🔓 Buka Kunci Supervisor
+          </button>
+        </div>
+      </div>
+
+      <button class="danger-btn" onclick="clearData()" style="margin-top:4px">🗑 Hapus Semua Data Lokal</button>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="bnav-item active" id="nav-home" onclick="safeShowPage('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Beranda
+    </button>
+    <button class="bnav-item" id="nav-history" onclick="safeShowPage('history')" style="position:relative">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Riwayat
+    </button>
+    <button class="bnav-item" id="nav-settings" onclick="safeShowPage('settings')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Pengaturan
+    </button>
+  </div>
+<!-- MODAL DETAIL HISTORY -->
+<div class="modal-overlay" id="detailModal" onclick="closeDetail(event)">
+  <div class="modal-box" id="detailBox">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h3 id="detailTitle">Detail P2H</h3>
+      <button class="modal-close" onclick="closeDetailModal()">✕ Tutup</button>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+  </div>
+</div>
+
+<!-- CONFIRM KEMBALI -->
+<div class="confirm-overlay" id="confirmBack">
+  <div class="confirm-box">
+    <div class="icon">⚠️</div>
+    <h4>Tinggalkan Form?</h4>
+    <p>Data yang sudah diisi akan hilang. Yakin ingin kembali?</p>
+    <div class="confirm-btns">
+      <button class="confirm-cancel" onclick="closeConfirmBack()">Batal</button>
+      <button class="confirm-ok" onclick="confirmGoHome()">Ya, Kembali</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- end #app -->
+
+<!-- MODAL SETUP PROFIL PERTAMA KALI -->
+<div class="confirm-overlay" id="setupModal" style="z-index:500">
+  <div class="confirm-box" style="max-width:340px;text-align:left">
+    <div style="font-size:32px;text-align:center;margin-bottom:8px">👷</div>
+    <h4 style="text-align:center;margin-bottom:4px">Selamat Datang!</h4>
+    <p style="text-align:center;margin-bottom:18px">Isi profil kamu dulu sebelum mulai.</p>
+    <div class="form-field">
+      <label>Nama Lengkap</label>
+      <input type="text" id="setup_nama" placeholder="Nama lengkap driver / operator"/>
+    </div>
+    <div class="form-field" style="margin-top:10px">
+      <label>Tipe Unit yang Dioperasikan</label>
+      <select id="setup_unitType">
+        <option value="">-- Pilih Tipe Unit --</option>
+        <option value="dt">Dump Truck</option>
+        <option value="exa">Excavator</option>
+        <option value="gdv">Grader / Dozer / Vibro</option>
+        <option value="lv">Light Vehicle</option>
+      </select>
+    </div>
+    <button class="confirm-ok" style="width:100%;margin-top:16px;background:var(--accent);border-radius:10px;padding:12px;font-size:14px" onclick="saveSetupProfile()">
+      Mulai →
+    </button>
+  </div>
+</div>
+
+<!-- MODAL PIN SUPERVISOR -->
+<div class="confirm-overlay" id="pinModal">
+  <div class="confirm-box" style="max-width:300px">
+    <div style="font-size:32px;margin-bottom:8px">🔒</div>
+    <h4>Verifikasi Supervisor</h4>
+    <p style="margin-bottom:16px">Masukkan PIN 4 digit untuk mengubah tipe unit.</p>
+    <div style="display:flex;justify-content:center;gap:10px;margin-bottom:14px" id="pinDots">
+      <div class="pin-dot"></div>
+      <div class="pin-dot"></div>
+      <div class="pin-dot"></div>
+      <div class="pin-dot"></div>
+    </div>
+    <div id="pinModalError" style="color:var(--nok);font-size:11px;margin-bottom:10px;min-height:16px;text-align:center"></div>
+    <!-- Numpad diisi oleh JS saat modal dibuka -->
+    <div id="pinNumpad" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px"></div>
+    <div class="confirm-btns">
+      <button class="confirm-cancel" onclick="closePinModal()">Batal</button>
+      <button class="confirm-ok" style="background:var(--accent)" onclick="submitPin()">Konfirmasi</button>
+    </div>
+  </div>
+</div>
+<!-- MODAL KONFIRMASI TIPE UNIT SETELAH SETUP -->
+<div class="confirm-overlay" id="confirmUnitSetup" style="z-index:600">
+  <div class="confirm-box" style="max-width:320px">
+    <div id="confirmUnitSetupIcon" style="margin-bottom:10px;display:flex;align-items:center;justify-content:center;"></div>
+    <h4>Konfirmasi Tipe Unit</h4>
+    <p id="confirmUnitSetupText" style="margin-bottom:18px">Apakah benar Anda mengoperasikan <b>Dump Truck</b>?<br><span style="font-size:11px;color:var(--muted)">Pastikan sesuai dengan unit yang akan Anda gunakan.</span></p>
+    <div class="confirm-btns">
+      <button class="confirm-cancel" onclick="cancelUnitSetup()">Tidak, Ubah</button>
+      <button class="confirm-ok" style="background:var(--ok)" onclick="confirmUnitSetup()">Ya, Benar</button>
+    </div>
+  </div>
+</div>
+
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// DATA CHECKLIST
+// ══════════════════════════════════════════════════════════
+const FORMS = {
+  dt: {
+    title: 'Dump Truck',
+    sheet: 'Form P2H',
+    namaField: 'Nama Lengkap Driver',
+    hmLabel: 'KM',
+    sectionBreaks: {
+      0:  { icon: '🔧', label: 'SEBELUM MESIN HIDUP' },
+      14: { icon: '🚀', label: 'SAAT MESIN HIDUP' },
+      22: { icon: '🧯', label: 'SAFETY EQUIPMENT' }
+    },
+    items: [
+      'Pemeriksaan Level Air Radiator dan Kondisi Sistem Pendingin (Tidak Bocor / Cukup Level)',
+      'Pemeriksaan Level dan Kondisi Oli Mesin Sesuai Standar Dipstick',
+      'Pemeriksaaan Minyak Kopling',
+      'Pemeriksaan Fungsi Kemudi dan Level Oli Power Steering',
+      'Pemeriksaan Kekencangan Baut Roda, Tekanan, Keausan, dan Kondisi Fisik Ban (Tidak Sobek / Benjol) Terutama No 1 dan 2',
+      'Pemeriksaan Kondisi Rangka Utama (Chassis) dan Body Unit Dari Retak, Deformasi, atau Baut Kendur',
+      'Pemeriksaan Torque rod, U-bolt, Cross Joint, Bearing, dan Propeller Shaft dalam Kondisi Aman, Tidak Aus, dan Tidak Longgar',
+      'Pemeriksaan Level Solar dan Kondisi Tangki',
+      'Pemeriksaan Kondisi Selang Hidrolik (Tidak Retak, Bocor, atau Rembes)',
+      'Pemeriksaan Kondisi Bak Dump (Tidak Retak, Pin dan Silinder Dalam Kondisi Aman)',
+      'Pemeriksaan Kondisi Aki dan Level Air Aki (Terminal Tidak Korosi)',
+      'Pemeriksaan Fungsi dan Kebocoran Exhaust Brake',
+      'Pemeriksaan Kondisi dan Posisi Kaca Spion',
+      'Pemeriksaan Kebersihan Kabin',
+      'Pemeriksaan Fungsi Wiper dan Ketersediaan Air Washer',
+      'Pemeriksaan Kondisi Kursi dan Fungsi Sabuk Pengaman',
+      'Pemeriksaan Visual Kondisi Mesin (Tidak Ada Kebocoran Oli, Suara Abnormal, Atau Getaran Tidak Normal)',
+      'Pemeriksaan Fungsi Indikator Ampere, Speedometer, Tekanan Oli dan Suhu Mesin',
+      'Pemeriksaan Fungsi Klakson',
+      'Pemeriksaan Fungsi Seluruh Lampu Unit (Lampu Utama, Lampu Rem, dan Lampu Sein) Dalam Kondisi Normal dan Berfungsi Baik',
+      'Pemeriksaan Fungsi Rem Utama dan Rem Parkir (Responsif & Tidak Blong)',
+      'Back Alarm',
+      'APAR',
+      'Kotak P3K',
+      'Lampu Rotari'
+    ]
+  },
+  exa: {
+    title: 'Excavator',
+    sheet: 'Form P2H EXA',
+    namaField: 'Nama Lengkap Operator',
+    hmLabel: 'HM',
+    sectionBreaks: {
+      0:  { icon: '🔧', label: 'SEBELUM MESIN HIDUP' },
+      22: { icon: '🚀', label: 'SAAT MESIN HIDUP' },
+      34: { icon: '🧯', label: 'SAFETY EQUIPMENT' }
+    },
+    items: [
+      'Lakukan Pengecekan Level dan Kondisi Oli Mesin, Pastikan Sesuai Standar dan Tidak Berkurang',
+      'Cek Level Oli Hydraulic',
+      'Periksa Level Oli Swing Gear dan Pastikan Tidak Ada Kebocoran Pada Housing',
+      'Periksa Level Bahan Bakar Solar dan Pastikan Cukup Untuk Operasional',
+      'Periksa Volume Air Radiator dan Pastikan Tidak Kurang Atau Bocor',
+      'Cek dan Bersihkan Pre Cleaner',
+      'Periksa Kondisi Monitor Panel dan Pastikan Semua Indikator Berfungsi Normal',
+      'Periksa Kondisi Swing Gear Dari Keausan dan Pastikan Pelumasan Cukup',
+      'Periksa Seluruh Bagian Unit Dari Kemungkinan Kebocoran Oli, Solar, atau Cairan Lainnya',
+      'Periksa Kondisi Vbelt Dari Kelonggaran, Retak, atau Keausan',
+      'Pastikan Semua Baut, Mur, dan Pin Dalam Kondisi Kencang dan Tidak Hilang',
+      'Periksa Kondisi Batrai Dan Level Air Batrai, Pastikan Terminal Tidak Kendor Atau Berkarat',
+      'Periksa Hos Hydraulic Dari Retak, Bocor, atau Rembesan Oli',
+      'Pastikan Kabin Bersih, Kaca Utuh, dan Semua Kontrol Dalam Kondisi Baik',
+      'Check Ketegangan & Kerusakan Pada Track Shoe / Link, Adjust Jika Diperlukan',
+      'Check Keausan & Kerusakan Sproket, Baut dan Check Kebocoran Oli Final Drive',
+      'Check Keausan & Kerusakan Pada Idler',
+      'Check Crack & Kerusakan Pada Frame',
+      'Check Keausan & Kerusakan Pada Carrier & Track Roller',
+      'Check Pelumasan Boom Pin, Cylinder & Hose',
+      'Check Pelumasan Pin Arm, Cylinder & Hose',
+      'Check Teeth Bucket, Pelumasan Pada Pin, Link, Cylinders & Hose',
+      'Pastikan Kursi dan Sabuk Pengaman Dalam Kondisi Baik dan Dapat Digunakan Dengan Aman',
+      'Pastikan Lampu Indikator Tekanan Oli Mesin Tidak Menyala',
+      'Pastikan Suhu Mesin Stabil dan Tidak Melebihi Batas Normal',
+      'Pastikan Panel Suhu Hydraulic Stabil dan Tidak Melebihi Batas Normal',
+      'Fungsi Hydraulic Lock',
+      'Pastikan Klakson Berbunyi Normal dan Jelas',
+      'Pastikan Seluruh Tombol Dan Indikator Panel Bekerja Dengan Baik',
+      'Uji Gerakan Hidrolik, Pastikan Respons Normal dan Tidak Tersendat',
+      'Periksa Seluruh Lampu Kerja Menyala',
+      'Periksa Fungsi Gerakan Bucket dan Pastikan Tidak Macet Atau Oblak',
+      'Pastikan Boom Bergerak Lancar Tanpa Suara Abnormal',
+      'Pastikan Kaca Spion Utuh Dan Posisi Sesuai Untuk Visibilitas Aman',
+      'Pastikan Back Alarm Berbunyi Saat Unit Berjalan',
+      'Periksa Kondisi APAR, Tekanan Normal dan Segel Tidak Rusak',
+      'Pastikan Kunci Kabin Berfungsi dan Dapat Mengunci Dengan Baik',
+      'Periksa Kelengkapan Isi Kotak P3K dan Pastikan Masih Layak Pakai',
+      'Pastikan Lampu Rotary Menyala Dengan Baik Sebagai Tanda Peringatan',
+      'Periksa Kondisi Radio Rig Dan Pastikan Berfungsi Dengan Baik'
+    ]
+  },
+  gdv: {
+    title: 'Grader / Dozer / Vibro',
+    sheet: 'Form P2H Grader, Dozer, Vibro',
+    namaField: 'Nama Lengkap Operator',
+    hmLabel: 'HM',
+    sectionBreaks: {
+      0:  { icon: '🔍', label: 'PEMERIKSAAN UMUM' },
+      17: { icon: '🔧', label: 'PEMERIKSAAN SEBELUM ENGINE HIDUP' },
+      24: { icon: '🚀', label: 'PEMERIKSAAN SETELAH MESIN HIDUP' }
+    },
+    items: [
+      'Periksa Kondisi Ban (Termasuk Lengkap & Kencangnya Bolt)',
+      'Periksa Kondisi Tandem & Final Drive (Tidak Ada Oil Leak)',
+      'Periksa Kondisi Sekitar Engine (Kebocoran Oil & Fuel Dll)',
+      'Periksa Kondisi Steering & Brake System (Tidak Ada Oil Leak)',
+      'Periksa Kondisi Hose Di Hydraulik System (Tidak Ada Oil Leak)',
+      'Periksa Kondisi Fisik Cabin (Termasuk Kaca)',
+      'Periksa Kondisi Kaca Spion (Harus Lengkap & Baik)',
+      'Periksa Kondisi Operator Seat (Harus Bisa Diadjust)',
+      'Periksa Kondisi Sabuk Pengaman',
+      'Periksa Kondisi Tabung APAR',
+      'Periksa Kondisi Electrical Wiring (Tidak Ada yang Shortage)',
+      'Periksa Battery Isolator Switch , Switch Isolasi Lock Out',
+      'Periksa Kondisi Radio Komunikasi',
+      'Periksa Kondisi Lampu Kerja & Lampu Rotari',
+      'Periksa Kondisi Di Sekitar Battery (Tidak Boleh Ada Kotoran)',
+      'Periksa Kondisi Blade & Scarifier / Ripper',
+      'SIMPER',
+      'Periksa Level Air Pendingin di Reservoir Tank',
+      'Periksa Level Oli Mesin di Engine Oil Pan',
+      'Periksa Level Fuel',
+      'Periksa Level Oli Transmission',
+      'Periksa Level Oli Hydraulic',
+      'Periksa Level Oli Steering & Brake System',
+      'Periksa Fungsi Klakson/ Horn',
+      'Periksa Tekanan Oli Mesin',
+      'Periksa Suhu Air Pendingin Mesin',
+      'Periksa Suhu Oli Transmission/ T.Converter',
+      'Periksa Suhu Oil Hydraulik',
+      'Periksa Fungsi Monitor Panel',
+      'Periksa Fungsi Semua Lampu Kerja Termasuk Rotary Lamp',
+      'Periksa Fungsi Motor Wiper / Penghapus Kaca',
+      'Periksa Fungsi Back-Up Alarm',
+      'Periksa Fungsi Work Equipment (Blade, Scarifier)',
+      'Periksa Fungsi Steering & Brake System',
+      'Periksa Fungsi Air Conditioning'
+    ]
+  },
+  lv: {
+    title: 'Light Vehicle',
+    sheet: 'Form P2H LV',
+    namaField: 'Nama Lengkap Driver',
+    hmLabel: 'KM',
+    sectionBreaks: {
+      0:  { icon: '🚗', label: 'PEMERIKSAAN DI LUAR KABIN' },
+      11: { icon: '🪑', label: 'PEMERIKSAAN DI DALAM KABIN' },
+      28: { icon: '🧰', label: 'KELENGKAPAN TAMBAHAN' }
+    },
+    items: [
+      'Periksa Kondisi Ban dan Kekencangan Baut Roda',
+      'Periksa Level Oli Engine',
+      'Periksa Kerusakan Akibat Insiden',
+      'Periksa Level Oil Steering',
+      'Periksa Level Oil Rem',
+      'Pastikan Lampu Rotary Berfungsi',
+      'Periksa Kondisi dan Pemasangan Buggy Whip',
+      'Pastikan Alarm Mundur Berfungsi',
+      'Periksa Kondisi Battery dan Terminal',
+      'Periksa Ketersediaan Air Wiper',
+      'Pastikan Unit Bersih',
+      'Pastikan Brake Berfungsi',
+      'Pastikan Steering Berfungsi Normal',
+      'Pastikan Seat Belt Berfungsi Baik',
+      'Periksa Fungsi Double Gardan 4WD',
+      'Periksa Kondisi Spion',
+      'Pastikan Klakson Berfungsi',
+      'Pastikan Radio Berfungsi',
+      'Pastikan Lampu Parkir Berfungsi',
+      'Pastikan Lampu Depan Berfungsi',
+      'Pastikan Lampu Jauh Berfungsi',
+      'Pastikan Lampu Rem Berfungsi',
+      'Pastikan Lampu Hazard Berfungsi',
+      'Pastikan Lampu Depan Kanan Berfungsi',
+      'Pastikan Lampu Depan Kiri Berfungsi',
+      'Pastikan Lampu Belakang Kanan Berfungsi',
+      'Pastikan Lampu Belakang Kiri Berfungsi',
+      'Periksa Fungsi Wiper',
+      'Pastikan APAR Tersedia dan Siap Digunakan',
+      'Pastikan Kotak P3K Tersedia',
+      'Pastikan Kunci Roda dan Dongkrak Tersedia',
+      'Periksa Kondisi dan Ketersediaan Traffic Cone',
+      'Periksa kondisi dan ketersediaan Wheel Chock'
+    ]
+  }
+};
+
+// ── UNIT OPTIONS PER TYPE ──
+const UNIT_OPTIONS = {
+  dt: ['807','808','816','823','865','866','869','870','871','874','875','876','879','883','884','885','890','897','898','899','8100','8102','8104','8105','8144','8145','8146','8147','8148','8149','8150','8151','8152','8153'],
+  exa: ['CAT 6201','CAT 6202','CAT 51','CAT 83','CAT 85','CAT 94','M 02','M 03','M 08','M 09','M 11','M 12','M 14','M 15','M 16','M 17','M 19','M 21','M 22','M 25','M 26','M 27','M 28','M 29','M 30','M 31','M 33','M 45','M 48','M 49','M 51','M 52','M 53','M 74','M 79','M 98','M 99','M 100','M 101','M 102','M 103','M 104','MGA 811','MGA 815','MGA 829','MGA 861'],
+  gdv: ['M 411','M 416','M 502','M 505','M 603'],
+  lv: ['LV 02','LV 11','LV 12','LV 13','LV 24','LV 25','LV 27','LV 28','FT 02','MT 02','LT 01']
+};
+
+// ── GAS URL (hardcoded) ──
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbx70Llx6n_hNXXX-peHEmkmx_DaimLB-AU0kmcMX7URQlDjvwJPzdVzbRhPDNjWW5Q/exec';
+
+// ── STATE ──
+let currentForm = null;
+let checklistState = {};
+let settings = {};
+let db = null;
+let currentFilter = 'all';
+
+// ══════════════════════════════════════════════════════════
+// INDEXEDDB
+// ══════════════════════════════════════════════════════════
+function initDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('P2HDB', 3);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains('records')) {
+        const store = d.createObjectStore('records', { keyPath: 'localId', autoIncrement: true });
+        store.createIndex('status', 'status');
+        store.createIndex('unitType', 'unitType');
+        store.createIndex('tanggal', 'tanggal');
+      }
+      if (!d.objectStoreNames.contains('settings')) {
+        d.createObjectStore('settings', { keyPath: 'key' });
+      }
+    };
+    req.onsuccess = e => { db = e.target.result; resolve(); };
+    req.onerror = () => reject(req.error);
+  });
+}
+function dbPut(store, data) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).put(data);
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+function dbGetAll(store) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).getAll();
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+function dbGet(store, key) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).get(key);
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+function dbUpdate(store, key, updates) {
+  return new Promise(async (res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const obj = tx.objectStore(store);
+    const getReq = obj.get(key);
+    getReq.onsuccess = () => {
+      const record = { ...getReq.result, ...updates };
+      const putReq = obj.put(record);
+      putReq.onsuccess = () => res();
+      putReq.onerror = () => rej(putReq.error);
+    };
+    getReq.onerror = () => rej(getReq.error);
+  });
+}
+function dbClearAll(store) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).clear();
+    req.onsuccess = () => res();
+    req.onerror = () => rej(req.error);
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════════════════════
+
+// PIN supervisor — ubah nilai ini sesuai kebutuhan
+const SUPERVISOR_PIN = '1507';
+
+async function loadSettings() {
+  const s = await dbGet('settings', 'config');
+  settings = s ? s.value : { defNama:'', defUnitType:'', defUnit:'' };
+  document.getElementById('defNama').value      = settings.defNama     || '';
+  document.getElementById('defUnitType').value  = settings.defUnitType || '';
+  renderHomeUnit();
+  // Tampilkan tombol ganti tipe unit hanya kalau profil sudah terisi
+  const pinSec = document.getElementById('pinSection');
+  if (pinSec) pinSec.style.display = settings.defUnitType ? 'block' : 'none';
+}
+
+async function saveSettings() {
+  const nama     = document.getElementById('defNama').value.trim();
+  const unitType = document.getElementById('defUnitType').value;
+  if (!nama)     { toast('⚠ Nama wajib diisi', 'err'); return; }
+  if (!unitType) { toast('⚠ Pilih tipe unit dulu', 'err'); return; }
+  settings.defNama     = nama;
+  settings.defUnitType = unitType;
+  await dbPut('settings', { key:'config', value:settings });
+  toast('✅ Profil disimpan', 'ok');
+  renderHomeUnit();
+  const pinSec = document.getElementById('pinSection');
+  if (pinSec) pinSec.style.display = 'block';
+}
+
+
+
+// ── SETUP PROFIL PERTAMA KALI ──
+async function saveSetupProfile() {
+  const nama     = document.getElementById('setup_nama').value.trim();
+  const unitType = document.getElementById('setup_unitType').value;
+  if (!nama)     { toast('⚠ Nama wajib diisi', 'err'); return; }
+  if (!unitType) { toast('⚠ Pilih tipe unit dulu', 'err'); return; }
+
+  // Simpan dulu ke settings sementara (belum permanen)
+  settings._pendingNama     = nama;
+  settings._pendingUnitType = unitType;
+
+  // Tutup modal setup, tampilkan konfirmasi tipe unit
+  document.getElementById('setupModal').classList.remove('show');
+  showConfirmUnitSetup(unitType, nama);
+}
+
+function showConfirmUnitSetup(unitType, nama) {
+  const label = UNIT_LABEL[unitType] || unitType;
+  const icon  = UNIT_SVG[unitType]   || '';
+  document.getElementById('confirmUnitSetupIcon').innerHTML = `<div style="width:64px;height:64px;border-radius:50%;background:var(--accent-lt);display:flex;align-items:center;justify-content:center;">${icon}</div>`;
+  document.getElementById('confirmUnitSetupText').innerHTML =
+    `Apakah benar <b>${nama}</b> mengoperasikan<br><b style="color:var(--accent);font-size:15px">${label}</b>?<br><span style="font-size:11px;color:var(--muted)">Pastikan sesuai unit yang akan digunakan.</span>`;
+  document.getElementById('confirmUnitSetup').classList.add('show');
+}
+
+async function confirmUnitSetup() {
+  // Konfirmasi — simpan permanen
+  settings.defNama     = settings._pendingNama;
+  settings.defUnitType = settings._pendingUnitType;
+  delete settings._pendingNama;
+  delete settings._pendingUnitType;
+  await dbPut('settings', { key:'config', value:settings });
+  document.getElementById('defNama').value     = settings.defNama;
+  document.getElementById('defUnitType').value = settings.defUnitType;
+  document.getElementById('confirmUnitSetup').classList.remove('show');
+  const pinSec = document.getElementById('pinSection');
+  if (pinSec) pinSec.style.display = 'block';
+  renderHomeUnit();
+  // Kunci dropdown
+  const sel = document.getElementById('defUnitType');
+  if (sel) sel.disabled = true;
+  // Tampilkan home
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.bnav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-home').classList.add('active');
+  document.getElementById('nav-home').classList.add('active');
+  updateStats();
+  toast('✅ Profil tersimpan, selamat bekerja!', 'ok');
+}
+
+function cancelUnitSetup() {
+  // Batal — kembali ke modal setup
+  document.getElementById('confirmUnitSetup').classList.remove('show');
+  document.getElementById('setupModal').classList.add('show');
+}
+
+// ── RENDER UNIT CARD DI HOME ──
+const UNIT_SVG = {
+  dt: `<svg viewBox="0 0 24 24" fill="none" stroke="#d85a30" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="1" y="3" width="15" height="13" rx="1.5"/>
+    <path d="M16 8h4l3 5v4h-7V8z"/>
+    <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+  </svg>`,
+  exa: `<svg viewBox="0 0 32 32" fill="none" stroke="#d85a30" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="4" y="21" width="20" height="4" rx="2"/>
+    <circle cx="7" cy="23" r="1.8" fill="#fff0eb" stroke="#d85a30"/>
+    <circle cx="21" cy="23" r="1.8" fill="#fff0eb" stroke="#d85a30"/>
+    <rect x="6" y="14" width="14" height="7" rx="1.5"/>
+    <rect x="7" y="10" width="7" height="4" rx="1"/>
+    <line x1="20" y1="15" x2="27" y2="8"/>
+    <line x1="27" y1="8" x2="26" y2="16"/>
+    <path d="M26 16 Q29 17 28 21 L24 20 Z"/>
+    <line x1="26" y1="20.5" x2="26" y2="23"/>
+    <line x1="27.5" y1="20" x2="27.8" y2="22.5"/>
+  </svg>`,
+  gdv: `<svg viewBox="0 0 32 32" fill="none" stroke="#d85a30" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="8" y="10" width="16" height="8" rx="1.5"/>
+    <rect x="18" y="6" width="6" height="4" rx="1"/>
+    <path d="M2 9 L8 11 L8 18 L2 20 Z"/>
+    <line x1="2" y1="9" x2="2" y2="20"/>
+    <line x1="4" y1="14" x2="8" y2="14"/>
+    <rect x="7" y="18" width="18" height="4" rx="2"/>
+    <circle cx="10" cy="20" r="2.2" fill="#fff0eb" stroke="#d85a30"/>
+    <circle cx="22" cy="20" r="2.2" fill="#fff0eb" stroke="#d85a30"/>
+    <path d="M24 14 L30 13 L30 18 L24 18"/>
+    <line x1="27" y1="18" x2="27" y2="22"/>
+    <line x1="29" y1="18" x2="29" y2="22"/>
+  </svg>`,
+  lv: `<svg viewBox="0 0 24 24" fill="none" stroke="#d85a30" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 17H3a2 2 0 01-2-2V9a2 2 0 012-2h14l4 4v6a2 2 0 01-2 2h-2"/>
+    <path d="M7 17h8"/>
+    <circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>
+    <path d="M5 7l2-4h8l2 4"/>
+  </svg>`
+};
+
+const UNIT_LABEL = { dt:'Dump Truck', exa:'Excavator', gdv:'Grader / Dozer / Vibro', lv:'Light Vehicle' };
+const UNIT_SUB   = { dt:'DT', exa:'EXA', gdv:'GDV', lv:'LV' };
+
+function renderHomeUnit() {
+  const container = document.getElementById('unit-grid-container');
+  const header    = document.getElementById('unitSectionHeader');
+  if (!container) return;
+  const type = settings.defUnitType;
+  if (!type) {
+    container.innerHTML = `
+      <div class="empty-state" style="padding:32px 20px">
+        <div class="icon">⚙️</div>
+        <p style="font-size:13px;color:var(--text2)">Profil belum diisi.<br>Buka <b>Pengaturan</b> untuk melanjutkan.</p>
+      </div>`;
+    if (header) header.textContent = 'Unit Saya';
+    return;
+  }
+  const nama = settings.defNama ? `· ${settings.defNama}` : '';
+  if (header) header.textContent = `Unit Saya ${nama}`;
+  container.innerHTML = `
+    <div class="unit-card-single" onclick="openForm('${type}')">
+      <div class="unit-card-stripe" style="position:absolute;top:0;left:0;right:0;height:4px;background:var(--accent);border-radius:16px 16px 0 0"></div>
+      <div class="icon-wrap">${UNIT_SVG[type] || ''}</div>
+      <div class="info">
+        <div class="label">${UNIT_LABEL[type]}</div>
+        <div class="sub">Ketuk untuk mulai P2H</div>
+      </div>
+      <div class="arrow">›</div>
+    </div>`;
+}
+
+// ── PIN SUPERVISOR ──
+let _pinValue = '';
+
+function buildNumpad() {
+  const numpad = document.getElementById('pinNumpad');
+  if (!numpad) return;
+  numpad.innerHTML = '';
+  const keys = [1,2,3,4,5,6,7,8,9,'',0,'⌫'];
+  keys.forEach(k => {
+    const btn = document.createElement('button');
+    btn.textContent = k === '' ? '' : String(k);
+    btn.style.cssText = [
+      'padding:14px',
+      'border:1.5px solid var(--border)',
+      'border-radius:10px',
+      'font-size:18px',
+      'font-weight:700',
+      'background:' + (k === '' ? 'transparent' : 'var(--bg)'),
+      'color:var(--text)',
+      'cursor:' + (k === '' ? 'default' : 'pointer'),
+      'pointer-events:' + (k === '' ? 'none' : 'auto'),
+      'user-select:none',
+      '-webkit-user-select:none'
+    ].join(';');
+    if (k !== '') {
+      btn.addEventListener('click', function() { pinInput(String(k)); });
+    }
+    numpad.appendChild(btn);
+  });
+}
+
+function openPinModal() {
+  _pinValue = '';
+  updatePinDots();
+  document.getElementById('pinModalError').textContent = '';
+  buildNumpad();
+  document.getElementById('pinModal').classList.add('show');
+}
+function closePinModal() {
+  _pinValue = '';
+  document.getElementById('pinModal').classList.remove('show');
+}
+function pinInput(k) {
+  if (k === '⌫') { _pinValue = _pinValue.slice(0, -1); }
+  else if (_pinValue.length < 4) { _pinValue += k; }
+  updatePinDots();
+  if (_pinValue.length === 4) setTimeout(submitPin, 200);
+}
+function updatePinDots() {
+  document.querySelectorAll('.pin-dot').forEach((d, i) => {
+    d.classList.toggle('filled', i < _pinValue.length);
+  });
+}
+function submitPin() {
+  if (_pinValue === SUPERVISOR_PIN) {
+    closePinModal();
+    // Tampilkan modal setup ulang seperti pertama kali buka app
+    const setupNama = document.getElementById('setup_nama');
+    const setupUnit = document.getElementById('setup_unitType');
+    if (setupNama) setupNama.value = settings.defNama || '';
+    if (setupUnit) setupUnit.value = settings.defUnitType || '';
+    document.getElementById('setupModal').classList.add('show');
+  } else {
+    document.getElementById('pinModalError').textContent = '❌ PIN salah. Coba lagi.';
+    _pinValue = '';
+    updatePinDots();
+  }
+}
+function unlockUnitType() {
+  openPinModal();
+}
+
+// ══════════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════════
+// Cek apakah form sedang aktif dan ada isian
+function isFormDirty() {
+  const formPage = document.getElementById('page-form');
+  if (!formPage || !formPage.classList.contains('active')) return false;
+  const nama = document.getElementById('f_nama');
+  const unit = document.getElementById('f_unit');
+  const filled = Object.values(checklistState).some(v => v !== '');
+  return filled || (nama && nama.value.trim()) || (unit && unit.value);
+}
+
+// showPage aman — intercept kalau form kotor
+function safeShowPage(name) {
+  if (isFormDirty()) {
+    _pendingNavTarget = name;
+    document.getElementById('confirmBack').classList.add('show');
+  } else {
+    showPage(name);
+  }
+}
+
+let _pendingNavTarget = null;
+
+function showPage(name) {
+  _pendingNavTarget = null;
+  // Tutup unit search dropdown kalau terbuka
+  closeUnitDropdown();
+  // Kalau profil belum diisi, paksa ke settings
+  if (name !== 'settings' && (!settings.defNama || !settings.defUnitType)) {
+    document.getElementById('setupModal').classList.add('show');
+    return;
+  }
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.bnav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  const nav = document.getElementById('nav-' + name);
+  if (nav) nav.classList.add('active');
+  if (name === 'history') renderHistory();
+  if (name === 'home') { updateStats(); renderHomeUnit(); }
+  // Kunci dropdown tipe unit kecuali baru di-unlock supervisor
+  if (name === 'settings') {
+    const sel = document.getElementById('defUnitType');
+    if (sel && settings.defUnitType) sel.disabled = true;
+  }
+  window.scrollTo(0, 0);
+}
+function goHome() { showPage('home'); }
+
+// ══════════════════════════════════════════════════════════
+// FORM BUILDER
+// ══════════════════════════════════════════════════════════
+// SVG & label untuk konfirmasi tipe unit
+const UNIT_CONFIRM = {
+  dt: {
+    label: 'Dump Truck',
+    svg: `<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="1" y="3" width="15" height="13" rx="1.5"/>
+      <path d="M16 8h4l3 5v4h-7V8z"/>
+      <circle cx="5.5" cy="18.5" r="2.5"/>
+      <circle cx="18.5" cy="18.5" r="2.5"/>
+    </svg>`
+  },
+  exa: {
+    label: 'Excavator',
+    svg: `<svg width="56" height="56" viewBox="0 0 32 32" fill="none" stroke="#F5A623" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="4" y="21" width="20" height="4" rx="2"/>
+      <circle cx="7" cy="23" r="1.8" fill="#FFF3D6" stroke="#F5A623"/>
+      <circle cx="21" cy="23" r="1.8" fill="#FFF3D6" stroke="#F5A623"/>
+      <rect x="6" y="14" width="14" height="7" rx="1.5" fill="#FFF3D6" stroke="#F5A623"/>
+      <rect x="7" y="10" width="7" height="4" rx="1" fill="#FFF3D6" stroke="#F5A623"/>
+      <line x1="20" y1="15" x2="27" y2="8"/>
+      <line x1="27" y1="8" x2="26" y2="16"/>
+      <path d="M26 16 Q29 17 28 21 L24 20 Z" fill="#FFF3D6"/>
+      <line x1="26" y1="20.5" x2="26" y2="23"/>
+      <line x1="27.5" y1="20" x2="27.8" y2="22.5"/>
+    </svg>`
+  },
+  gdv: {
+    label: 'Grader / Dozer / Vibro',
+    svg: `<svg width="56" height="56" viewBox="0 0 32 32" fill="none" stroke="#F5A623" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="8" y="10" width="16" height="8" rx="1.5" fill="#FFF3D6" stroke="#F5A623"/>
+      <rect x="18" y="6" width="6" height="4" rx="1" fill="#FFF3D6" stroke="#F5A623"/>
+      <path d="M2 9 L8 11 L8 18 L2 20 Z" fill="#FFF3D6"/>
+      <line x1="2" y1="9" x2="2" y2="20"/>
+      <line x1="4" y1="14" x2="8" y2="14"/>
+      <rect x="7" y="18" width="18" height="4" rx="2"/>
+      <circle cx="10" cy="20" r="2.2" fill="#FFF3D6" stroke="#F5A623"/>
+      <circle cx="22" cy="20" r="2.2" fill="#FFF3D6" stroke="#F5A623"/>
+      <path d="M24 14 L30 13 L30 18 L24 18" fill="#FFF3D6" stroke="#F5A623"/>
+      <line x1="27" y1="18" x2="27" y2="22"/>
+      <line x1="29" y1="18" x2="29" y2="22"/>
+    </svg>`
+  },
+  lv: {
+    label: 'Light Vehicle',
+    svg: `<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 17H3a2 2 0 01-2-2V9a2 2 0 012-2h14l4 4v6a2 2 0 01-2 2h-2"/>
+      <path d="M7 17h8"/>
+      <circle cx="7" cy="17" r="2" fill="#FFF3D6"/>
+      <circle cx="17" cy="17" r="2" fill="#FFF3D6"/>
+      <path d="M5 7l2-4h8l2 4"/>
+    </svg>`
+  }
+};
+
+let _pendingFormType = null;
+
+function openForm(type) {
+  // Tipe unit sudah dikunci di profil — tidak perlu dialog konfirmasi lagi
+  // Langsung buka form
+  _openForm(type);
+}
+
+function closeConfirmUnit() {
+  _pendingFormType = null;
+  const el = document.getElementById('confirmUnit');
+  if (el) el.classList.remove('show');
+}
+
+function confirmOpenForm() {
+  const el = document.getElementById('confirmUnit');
+  if (el) el.classList.remove('show');
+  const type = _pendingFormType;
+  _pendingFormType = null;
+  _openForm(type);
+}
+
+function _openForm(type) {
+  currentForm = type;
+  checklistState = {};
+  const cfg = FORMS[type];
+  document.getElementById('formTitle').textContent = cfg.title;
+  document.getElementById('formSubtitle').textContent = cfg.sheet;
+
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const tgl = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  const jam = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  // Timestamp input aktual format DD/MM/YYYY HH:MM (readonly)
+  const tanggalInput = `${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()} ${jam}`;
+
+  let html = `
+  <div class="form-section">
+    <div class="section-label">📋 Informasi Umum</div>
+    <div class="form-field">
+      <label>Tanggal P2H <span style="font-size:10px;color:var(--muted);font-weight:400">(otomatis saat form dibuka)</span></label>
+      <input type="text" id="f_tanggal" value="${tanggalInput}" readonly
+        style="background:var(--bg);color:var(--text2);font-weight:700;cursor:default;letter-spacing:0.3px;"/>
+    </div>
+    <div class="form-field">
+      <label>Jam Mulai P2H</label>
+      <input type="time" id="f_jam" value="${jam}"/>
+    </div>
+    <div class="form-field">
+      <label>${cfg.namaField}</label>
+      <input type="text" id="f_nama" placeholder="Nama lengkap..." value="${settings.defNama || ''}"/>
+    </div>
+    <div class="form-field">
+      <label>ID Unit</label>
+      <div class="unit-search-wrap" id="unitSearchWrap">
+        <input type="text" id="f_unit_search" autocomplete="off" autocorrect="off"
+          placeholder="Ketik untuk cari ID unit..."
+          oninput="filterUnitList()"
+          onfocus="openUnitDropdown()"
+          onblur="closeUnitDropdownDelay()"
+          style="padding-right:36px"/>
+        <span id="unitSearchClear" onclick="clearUnitSearch()"
+          style="position:absolute;right:10px;top:50%;transform:translateY(-50%);
+          font-size:16px;color:var(--muted);cursor:pointer;display:none;
+          line-height:1;padding:4px;">&#10005;</span>
+        <div class="unit-dropdown" id="unitDropdown">
+          <div class="unit-dropdown-list" id="unitDropdownList"></div>
+        </div>
+      </div>
+      <input type="hidden" id="f_unit" value=""/>
+    </div>
+    <div class="form-field">
+      <label>${cfg.hmLabel}</label>
+      <input type="tel" inputmode="numeric" pattern="[0-9]*" id="f_hm"
+        placeholder="Masukkan angka ${cfg.hmLabel}..."
+        style="font-size:16px;letter-spacing:0.5px;"/>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="section-label">🔍 Checklist Pemeriksaan</div>
+    <div class="chk-progress-wrap">
+      <div class="chk-progress-info">
+        <span id="progressText">0 / ${cfg.items.length} diperiksa</span>
+        <span id="progressPct">0%</span>
+      </div>
+      <div class="chk-progress-bar">
+        <div class="chk-progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+    <div class="info-box">Ketuk <b>Baik</b> atau <b>Rusak</b> untuk setiap item pemeriksaan.</div>
+  `;
+
+  cfg.items.forEach((item, i) => {
+    const id = `chk_${i}`;
+    checklistState[id] = '';
+    // Sisipkan section header jika ada
+    if (cfg.sectionBreaks && cfg.sectionBreaks[i]) {
+      const sb = cfg.sectionBreaks[i];
+      html += `<div class="chk-section-header"><span style="font-size:16px;line-height:1">${sb.icon}</span>${sb.label}</div>`;
+    }
+    html += `
+    <div class="chk-item" id="ci_${i}">
+      <div class="chk-item-top">
+        <div class="chk-num">${i+1}</div>
+        <div class="chk-text">${item}</div>
+      </div>
+      <div class="toggle-group">
+        <button class="toggle-btn" onclick="setChk(${i},'Baik',this)">✔ Baik</button>
+        <button class="toggle-btn" onclick="setChk(${i},'Rusak',this)">✖ Rusak</button>
+      </div>
+    </div>`;
+  });
+
+  html += `
+  </div>
+  <div class="form-section">
+    <div class="section-label">📝 Catatan & Tindakan</div>
+    <div class="form-field">
+      <label>Keterangan Pengecekan</label>
+      <textarea id="f_keterangan" placeholder="Catatan hasil pemeriksaan..."></textarea>
+    </div>
+    <div class="form-field">
+      <label>Tindakan</label>
+      <select id="f_tindakan">
+        <option value="">-- Pilih Tindakan --</option>
+        <option value="Dilanjutkan Beroperasi">Dilanjutkan Beroperasi</option>
+        <option value="Perlu Perbaikan">Perlu Perbaikan</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label>Jam Selesai P2H</label>
+      <input type="time" id="f_jamselesai"/>
+    </div>
+  </div>
+  <button class="submit-btn" id="submitBtn" onclick="submitForm()">
+    💾 Simpan P2H
+  </button>`;
+
+  document.getElementById('formBody').innerHTML = html;
+  showPage('form');
+  document.getElementById('page-form').scrollTop = 0;
+  // Init unit search dropdown setelah form di-render
+  initUnitSearch(type);
+}
+
+// ══════════════════════════════════════════════════════════
+// UNIT SEARCH DROPDOWN
+// ══════════════════════════════════════════════════════════
+let _unitOptions = [];
+let _unitDropdownOpen = false;
+let _closeDropdownTimer = null;
+
+function initUnitSearch(type) {
+  _unitOptions = UNIT_OPTIONS[type] || [];
+  renderUnitList('');
+}
+
+function renderUnitList(query) {
+  const list = document.getElementById('unitDropdownList');
+  if (!list) return;
+  const q = query.trim().toLowerCase();
+  const filtered = q
+    ? _unitOptions.filter(u => u.toLowerCase().includes(q))
+    : _unitOptions;
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="unit-dropdown-empty">Tidak ada hasil untuk "<b>${query}</b>"</div>`;
+    return;
+  }
+  const selected = document.getElementById('f_unit').value;
+  list.innerHTML = filtered.map(u => `
+    <div class="unit-dropdown-item${u === selected ? ' selected' : ''}"
+      onmousedown="selectUnit('${u}')">
+      ${u}
+    </div>`).join('');
+}
+
+function filterUnitList() {
+  const q = document.getElementById('f_unit_search').value;
+  renderUnitList(q);
+  const clear = document.getElementById('unitSearchClear');
+  if (clear) clear.style.display = q ? 'block' : 'none';
+  // Kalau user hapus pilihan yang sudah ada, reset hidden value
+  const hidden = document.getElementById('f_unit');
+  if (hidden && q !== hidden.value) hidden.value = '';
+  openUnitDropdown();
+}
+
+function selectUnit(val) {
+  document.getElementById('f_unit').value = val;
+  document.getElementById('f_unit_search').value = val;
+  const clear = document.getElementById('unitSearchClear');
+  if (clear) clear.style.display = 'block';
+  closeUnitDropdown();
+  renderUnitList(val); // update selected highlight
+}
+
+function clearUnitSearch() {
+  document.getElementById('f_unit').value = '';
+  document.getElementById('f_unit_search').value = '';
+  const clear = document.getElementById('unitSearchClear');
+  if (clear) clear.style.display = 'none';
+  renderUnitList('');
+  document.getElementById('f_unit_search').focus();
+  openUnitDropdown();
+}
+
+function openUnitDropdown() {
+  clearTimeout(_closeDropdownTimer);
+  const dd = document.getElementById('unitDropdown');
+  if (dd) dd.classList.add('open');
+  _unitDropdownOpen = true;
+}
+
+function closeUnitDropdown() {
+  const dd = document.getElementById('unitDropdown');
+  if (dd) dd.classList.remove('open');
+  _unitDropdownOpen = false;
+}
+
+function closeUnitDropdownDelay() {
+  // Delay agar onmousedown di item sempat fire sebelum blur menutup dropdown
+  _closeDropdownTimer = setTimeout(closeUnitDropdown, 200);
+}
+
+function setChk(i, val, btn) {
+  const id = `chk_${i}`;
+  checklistState[id] = val;
+  const ci = document.getElementById(`ci_${i}`);
+  ci.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('ok','nok'));
+  ci.classList.remove('is-ok','is-nok');
+  if (val === 'Baik')  { btn.classList.add('ok');  ci.classList.add('is-ok'); }
+  else if (val === 'Rusak') { btn.classList.add('nok'); ci.classList.add('is-nok'); }
+  updateProgress();
+}
+
+function updateProgress() {
+  const cfg = FORMS[currentForm];
+  const total = cfg.items.length;
+  const done = Object.values(checklistState).filter(v => v !== '').length;
+  const pct = Math.round(done / total * 100);
+  document.getElementById('progressText').textContent = `${done} / ${total} diperiksa`;
+  document.getElementById('progressPct').textContent  = `${pct}%`;
+  document.getElementById('progressFill').style.width = `${pct}%`;
+}
+
+// ══════════════════════════════════════════════════════════
+// SUBMIT
+// ══════════════════════════════════════════════════════════
+async function submitForm() {
+  const nama       = document.getElementById('f_nama').value.trim();
+  const unit       = document.getElementById('f_unit').value;
+  const tanggalInput = document.getElementById('f_tanggal').value; // DD/MM/YYYY HH:MM
+  const jam        = document.getElementById('f_jam').value;
+  // Konversi ke YYYY-MM-DD untuk keperluan filter history
+  const parts = tanggalInput.split(' ')[0].split('/');
+  const tanggal = `${parts[2]}-${parts[1]}-${parts[0]}`;
+  if (!nama) { toast('⚠ Nama wajib diisi', 'err'); return; }
+  if (!unit) { toast('⚠ ID Unit wajib dipilih', 'err'); return; }
+  const hm = document.getElementById('f_hm').value.trim();
+  if (!hm) { toast('⚠ HM / KM wajib diisi', 'err'); return; }
+
+  // Validasi checklist harus semua terisi
+  const cfg2 = FORMS[currentForm];
+  const belumDiisi = cfg2.items.filter((_, i) => !checklistState[`chk_${i}`]);
+  if (belumDiisi.length > 0) {
+    toast(`⚠ Masih ${belumDiisi.length} item belum diperiksa`, 'err');
+    // Scroll ke item pertama yang belum diisi
+    const firstEmpty = cfg2.items.findIndex((_, i) => !checklistState[`chk_${i}`]);
+    const el = document.getElementById(`ci_${firstEmpty}`);
+    if (el) { el.scrollIntoView({ behavior:'smooth', block:'center' }); el.style.boxShadow='0 0 0 2px var(--nok)'; setTimeout(()=>el.style.boxShadow='',2000); }
+    return;
+  }
+
+  const cfg = FORMS[currentForm];
+  const record = {
+    unitType:   currentForm,
+    sheetName:  cfg.sheet,
+    tanggal, tanggalInput, jam,
+    [cfg.namaField]: nama,
+    'ID Unit':  unit,
+    [cfg.hmLabel]: hm,
+    'Keterangan Pengecekan': document.getElementById('f_keterangan').value,
+    'Tindakan':             document.getElementById('f_tindakan').value,
+    'Jam Selesai P2H':      document.getElementById('f_jamselesai').value,
+    checklist:  {},
+    status:     'pending',
+    createdAt:  new Date().toISOString()
+  };
+  cfg.items.forEach((item, i) => {
+    record.checklist[item] = checklistState[`chk_${i}`] || '';
+  });
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Menyimpan...';
+
+  try {
+    await dbPut('records', record);
+    toast('✅ P2H tersimpan!', 'ok');
+    updateStats();
+    updateSyncBadge();
+    goHome();
+    // Coba sync langsung + register Background Sync (jalan walau tab ditutup)
+    setTimeout(() => tryAutoSync('post-submit'), 800);
+    requestBackgroundSync(); // trigger SW sync di background
+  } catch(e) {
+    toast('❌ Gagal simpan: ' + e.message, 'err');
+    btn.disabled = false;
+    btn.innerHTML = '💾 Simpan P2H';
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// KONFIRMASI KEMBALI
+// ══════════════════════════════════════════════════════════
+function askGoHome() {
+  // Cek apakah ada data yang sudah diisi
+  const nama = document.getElementById('f_nama') ? document.getElementById('f_nama').value.trim() : '';
+  const filled = Object.values(checklistState).some(v => v !== '');
+  if (nama || filled) {
+    document.getElementById('confirmBack').classList.add('show');
+  } else {
+    goHome();
+  }
+}
+function closeConfirmBack() {
+  document.getElementById('confirmBack').classList.remove('show');
+}
+function confirmGoHome() {
+  document.getElementById('confirmBack').classList.remove('show');
+  checklistState = {};
+  const target = _pendingNavTarget || 'home';
+  _pendingNavTarget = null;
+  showPage(target);
+}
+
+// ══════════════════════════════════════════════════════════
+// MODAL DETAIL HISTORY
+// ══════════════════════════════════════════════════════════
+async function openDetail(localId) {
+  const records = await dbGetAll('records');
+  const r = records.find(rec => rec.localId === localId);
+  if (!r) return;
+  const cfg = FORMS[r.unitType];
+  const unitLabel = { dt:'Dump Truck', exa:'Excavator', gdv:'Grader/Dozer/Vibro', lv:'Light Vehicle' };
+  const statusLabel = { synced:'✅ Tersync', pending:'⏳ Belum Sync', error:'❌ Gagal Sync' };
+  const nama = r[cfg ? cfg.namaField : 'Nama Lengkap Driver'] || '-';
+  const total = cfg ? cfg.items.length : 0;
+  const done  = Object.values(r.checklist || {}).filter(v => v !== '').length;
+  const rusak = Object.values(r.checklist || {}).filter(v => v === 'Rusak').length;
+
+  document.getElementById('detailTitle').textContent = `${r['ID Unit'] || '-'} · ${unitLabel[r.unitType] || r.unitType}`;
+
+  // Buat list checklist dengan section breaks
+  let chkHtml = '<div class="modal-chk-list">';
+  if (cfg) {
+    cfg.items.forEach((item, i) => {
+      if (cfg.sectionBreaks && cfg.sectionBreaks[i]) {
+        chkHtml += `<div class="modal-section-lbl">${cfg.sectionBreaks[i].icon} ${cfg.sectionBreaks[i].label}</div>`;
+      }
+      const val = r.checklist[item] || '';
+      const cls = val === 'Baik' ? 'ok' : val === 'Rusak' ? 'nok' : 'empty';
+      const badge = val || '—';
+      chkHtml += `
+        <div class="modal-chk-row ${cls}">
+          <div class="modal-chk-num">${i+1}</div>
+          <div class="modal-chk-text">${item}</div>
+          <div class="modal-chk-badge ${cls}">${badge}</div>
+        </div>`;
+    });
+  }
+  chkHtml += '</div>';
+
+  const retryBtn = (r.status === 'error' || r.status === 'pending')
+    ? `<button class="retry-btn" style="width:100%;justify-content:center;margin-top:12px" onclick="closeDetailModal();retrySingle(${r.localId})">↑ Retry Sync ke Sheets</button>`
+    : '';
+
+  document.getElementById('detailBody').innerHTML = `
+    <div class="modal-meta">
+      <div class="modal-meta-item"><div class="lbl">Tanggal Input</div><div class="val">${r.tanggalInput || r.tanggal || '-'}</div></div>
+      <div class="modal-meta-item"><div class="lbl">Jam Mulai P2H</div><div class="val">${r.jam || '-'}</div></div>
+      <div class="modal-meta-item"><div class="lbl">Driver/Operator</div><div class="val">${nama}</div></div>
+      <div class="modal-meta-item"><div class="lbl">${cfg?.hmLabel || 'HM/KM'}</div><div class="val">${r[cfg?.hmLabel] || '-'}</div></div>
+      <div class="modal-meta-item"><div class="lbl">Checklist</div><div class="val">${done}/${total} item</div></div>
+      <div class="modal-meta-item"><div class="lbl">Item Rusak</div><div class="val" style="color:${rusak>0?'var(--nok)':'var(--ok)'}">${rusak} item</div></div>
+    </div>
+    ${r['Keterangan Pengecekan'] ? `<div style="background:var(--bg);border-radius:9px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--text2)"><b>Keterangan:</b> ${r['Keterangan Pengecekan']}</div>` : ''}
+    ${r['Tindakan'] ? `<div style="background:var(--bg);border-radius:9px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--text2)"><b>Tindakan:</b> ${r['Tindakan']}</div>` : ''}
+    <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">Detail Checklist</div>
+    ${chkHtml}
+    <div style="margin-top:10px;padding:10px 12px;background:var(--bg);border-radius:9px;font-size:11px;color:var(--muted)">
+      Status: <b>${statusLabel[r.status] || r.status}</b>
+      ${r.syncedAt ? ' · Sync: ' + new Date(r.syncedAt).toLocaleString('id-ID') : ''}
+      ${r.errorMsg ? `<br><span style="color:var(--nok)">${r.errorMsg}</span>` : ''}
+    </div>
+    ${retryBtn}
+  `;
+
+  document.getElementById('detailModal').classList.add('show');
+}
+function closeDetailModal() {
+  document.getElementById('detailModal').classList.remove('show');
+}
+function closeDetail(e) {
+  if (e.target === document.getElementById('detailModal')) closeDetailModal();
+}
+
+// ══════════════════════════════════════════════════════════
+// RETRY SINGLE RECORD
+// ══════════════════════════════════════════════════════════
+async function retrySingle(localId) {
+  if (!GAS_URL) { toast('⚠ URL GAS belum diset', 'err'); return; }
+  const reachable = await isGASReachable();
+  if (!reachable) { toast('📡 GAS tidak bisa dijangkau', 'err'); return; }
+  const records = await dbGetAll('records');
+  const rec = records.find(r => r.localId === localId);
+  if (!rec) return;
+  toast('⏳ Mencoba sync...', '');
+  try {
+    const payload = buildPayload(rec);
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), 15000);
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'submitP2H', data: payload }),
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      redirect: 'follow',
+      signal: ctrl.signal
+    });
+    clearTimeout(tid);
+    const text = await res.text();
+    let json;
+    try { json = JSON.parse(text); } catch(e) { json = { status: 'error', message: 'Response bukan JSON valid' }; }
+    // FIX 2: jangan percaya res.ok sebagai sinyal sukses — GAS bisa balas
+    // HTTP 200 dengan body {status:'error'} saat ada exception di backend.
+    if (json.status === 'ok') {
+      await dbUpdate('records', localId, {
+        status: 'synced', syncedAt: new Date().toISOString(),
+        errorMsg: '', retryCount: 0, nextRetryAt: null
+      });
+      toast('✅ Berhasil tersync!', 'ok');
+    } else {
+      const retryCount = (rec.retryCount || 0) + 1;
+      const delayMs = RETRY_DELAYS_MS[Math.min(retryCount - 1, RETRY_DELAYS_MS.length - 1)];
+      await dbUpdate('records', localId, {
+        status: 'error', errorMsg: json.message || 'Unknown',
+        retryCount, nextRetryAt: Date.now() + delayMs
+      });
+      toast('❌ Gagal sync', 'err');
+    }
+  } catch(e) {
+    const retryCount = (rec.retryCount || 0) + 1;
+    const delayMs = RETRY_DELAYS_MS[Math.min(retryCount - 1, RETRY_DELAYS_MS.length - 1)];
+    await dbUpdate('records', localId, {
+      status: 'error',
+      errorMsg: e.name === 'AbortError' ? 'Timeout (>15 detik)' : e.message,
+      retryCount, nextRetryAt: Date.now() + delayMs
+    });
+    toast('❌ ' + (e.name === 'AbortError' ? 'Timeout' : e.message), 'err');
+  }
+  updateStats();
+  renderHistory();
+}
+
+// ══════════════════════════════════════════════════════════
+// SYNC ke GAS
+// ══════════════════════════════════════════════════════════
+
+// FIX 2: Exponential backoff untuk record gagal sync.
+// Sebelumnya record langsung status 'error' permanen → operator harus retry manual.
+// Sekarang: retry otomatis 1 menit → 5 menit → 15 menit → 60 menit → berhenti.
+const RETRY_DELAYS_MS = [60000, 300000, 900000, 3600000]; // 1m, 5m, 15m, 1jam
+
+function shouldRetryRecord(rec) {
+  if (rec.status === 'pending') return true;
+  if (rec.status === 'error') {
+    const retryCount = rec.retryCount || 0;
+    if (retryCount >= RETRY_DELAYS_MS.length) return false; // sudah max retry
+    const nextRetryAt = rec.nextRetryAt || 0;
+    return Date.now() >= nextRetryAt;
+  }
+  return false;
+}
+
+async function syncAll() {
+  if (!GAS_URL) { toast('⚠ URL GAS belum diset', 'err'); return; }
+  if (_isSyncing && arguments[0] !== 'force') { toast('⏳ Sedang sync, harap tunggu...', ''); return; }
+
+  _isSyncing = true;
+  const btn = document.getElementById('syncBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Sync...'; }
+
+  const records = await dbGetAll('records');
+  const toSync = records.filter(shouldRetryRecord);
+
+  if (toSync.length === 0) {
+    toast('✅ Semua data tersync', 'ok');
+    if (btn) { btn.disabled = false; btn.innerHTML = '↑ Sync <span class="sync-badge" id="syncBadge" style="display:none">0</span>'; }
+    updateSyncBadge();
+    _isSyncing = false;
+    return;
+  }
+
+  let success = 0, failed = 0;
+  for (const rec of toSync) {
+    try {
+      const payload = buildPayload(rec);
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 15000);
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'submitP2H', data: payload }),
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        redirect: 'follow',
+        signal: ctrl.signal
+      });
+      clearTimeout(tid);
+      const text = await res.text();
+      let json;
+      try { json = JSON.parse(text); } catch(e) { json = { status: 'error', message: 'Response bukan JSON valid' }; }
+      // FIX 2: jangan percaya res.ok sebagai sinyal sukses — GAS bisa balas
+      // HTTP 200 dengan body {status:'error'} saat ada exception di backend.
+      if (json.status === 'ok') {
+        await dbUpdate('records', rec.localId, {
+          status: 'synced',
+          syncedAt: new Date().toISOString(),
+          errorMsg: '',
+          retryCount: 0,
+          nextRetryAt: null
+        });
+        success++;
+      } else {
+        // FIX 2: Hitung nextRetryAt berdasarkan retryCount
+        const retryCount = (rec.retryCount || 0) + 1;
+        const delayMs = RETRY_DELAYS_MS[Math.min(retryCount - 1, RETRY_DELAYS_MS.length - 1)];
+        await dbUpdate('records', rec.localId, {
+          status: 'error',
+          errorMsg: json.message || 'Response tidak OK',
+          retryCount,
+          nextRetryAt: Date.now() + delayMs
+        });
+        failed++;
+      }
+    } catch(e) {
+      const retryCount = (rec.retryCount || 0) + 1;
+      const delayMs = RETRY_DELAYS_MS[Math.min(retryCount - 1, RETRY_DELAYS_MS.length - 1)];
+      await dbUpdate('records', rec.localId, {
+        status: 'error',
+        errorMsg: e.name === 'AbortError' ? 'Timeout (>15 detik)' : e.message,
+        retryCount,
+        nextRetryAt: Date.now() + delayMs
+      });
+      failed++;
+    }
+  }
+
+  if (btn) {
+    btn.disabled = false;
+    btn.innerHTML = '↑ Sync <span class="sync-badge" id="syncBadge" style="display:none">0</span>';
+  }
+  updateSyncBadge();
+  updateStats();
+  if (failed === 0) toast(`✅ ${success} data tersync ke Sheets`, 'ok');
+  else toast(`⚠ ${success} berhasil, ${failed} gagal (auto-retry aktif)`, 'err');
+  _isSyncing = false;
+}
+
+function buildPayload(rec) {
+  const cfg = FORMS[rec.unitType];
+  const row = {
+    sheetName: rec.sheetName,
+    'Tanggal P2H': rec.tanggalInput || rec.tanggal,
+    'Jam Pengisian P2H': rec.jam,
+    [cfg.namaField]: rec[cfg.namaField],
+    'ID Unit': rec['ID Unit'],
+    [cfg.hmLabel]: rec[cfg.hmLabel] || '',
+    'Keterangan Pengecekan': rec['Keterangan Pengecekan'],
+    'Tindakan': rec['Tindakan'],
+    'Jam Selesai P2H': rec['Jam Selesai P2H'],
+  };
+  Object.assign(row, rec.checklist);
+  return row;
+}
+
+// ══════════════════════════════════════════════════════════
+// HISTORY
+// ══════════════════════════════════════════════════════════
+async function renderHistory() {
+  const records = await dbGetAll('records');
+  records.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+  let filtered = records;
+  if (currentFilter === 'pending') filtered = records.filter(r => r.status === 'pending');
+  else if (currentFilter === 'synced') filtered = records.filter(r => r.status === 'synced');
+  else if (['dt','exa','gdv','lv'].includes(currentFilter)) filtered = records.filter(r => r.unitType === currentFilter);
+
+  document.getElementById('histCount').textContent = `${filtered.length} dari ${records.length} data`;
+
+  if (filtered.length === 0) {
+    document.getElementById('histList').innerHTML = `
+      <div class="empty-state">
+        <div class="icon">📋</div>
+        <p>Belum ada data P2H</p>
+      </div>`;
+    return;
+  }
+
+  const unitLabel = { dt:'Dump Truck', exa:'Excavator', gdv:'Grader/Dozer/Vibro', lv:'Light Vehicle' };
+  const statusLabel = { synced:'✅ Tersync ke Sheets', pending:'⏳ Belum tersync', error:'❌ Gagal sync' };
+
+  document.getElementById('histList').innerHTML = filtered.map(r => {
+    const cfg = FORMS[r.unitType];
+    const nama = r[cfg ? cfg.namaField : 'Nama Lengkap Driver'] || '-';
+    const total = cfg ? cfg.items.length : 0;
+    const done  = Object.values(r.checklist || {}).filter(v => v !== '').length;
+    const tgl   = r.tanggalInput || (r.tanggal ? new Date(r.tanggal + 'T00:00:00').toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) : '-');
+    const retryInfo = (r.status === 'error' && r.nextRetryAt)
+      ? (() => {
+          const remaining = Math.max(0, Math.ceil((r.nextRetryAt - Date.now()) / 60000));
+          const maxed = (r.retryCount || 0) >= RETRY_DELAYS_MS.length;
+          return maxed
+            ? `<div style="font-size:10px;color:var(--nok);margin-top:2px">⛔ Max retry tercapai — coba manual</div>`
+            : remaining > 0
+              ? `<div style="font-size:10px;color:var(--accent);margin-top:2px">🔄 Auto-retry dalam ~${remaining} menit</div>`
+              : `<div style="font-size:10px;color:var(--accent);margin-top:2px">🔄 Auto-retry segera...</div>`;
+        })()
+      : '';
+    const retryBtn = (r.status === 'error' || r.status === 'pending')
+      ? `<button class="retry-btn" onclick="event.stopPropagation();retrySingle(${r.localId})">↑ Retry Sync</button>`
+      : '';
+    return `
+    <div class="hist-item" onclick="openDetail(${r.localId})" style="cursor:pointer">
+      <div class="status-dot ${r.status}"></div>
+      <div class="hist-item-info">
+        <div class="unit">${r['ID Unit'] || '-'} · ${unitLabel[r.unitType] || r.unitType}</div>
+        <div class="meta">${nama}</div>
+        <div class="meta">${tgl} · Jam Mulai: ${r.jam || '-'} · Checklist ${done}/${total}</div>
+        <span class="hist-status ${r.status}">${statusLabel[r.status] || r.status}</span>
+        ${r.errorMsg ? `<div style="font-size:10px;color:var(--nok);margin-top:3px">${r.errorMsg}</div>` : ''}
+        ${retryInfo}
+        ${retryBtn}
+      </div>
+      <div style="color:var(--muted);font-size:16px;align-self:center">›</div>
+    </div>`;
+  }).join('');
+}
+
+function filterHist(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.hist-filter button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistory();
+}
+
+// ══════════════════════════════════════════════════════════
+// STATS & BADGE
+// ══════════════════════════════════════════════════════════
+async function updateStats() {
+  const records = await dbGetAll('records');
+  const now = new Date();
+  const today = now.toISOString().split('T')[0];
+  const thisMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  document.getElementById('statToday').textContent   = records.filter(r => r.tanggal === today).length;
+  document.getElementById('statPending').textContent = records.filter(r =>
+    r.status === 'pending' ||
+    (r.status === 'error' && (r.retryCount || 0) < RETRY_DELAYS_MS.length)
+  ).length;
+  document.getElementById('statTotal').textContent   = records.filter(r => r.tanggal && r.tanggal.startsWith(thisMonth)).length;
+  updateSyncBadge();
+
+  // Update tanggal di home
+  document.getElementById('homeDate').textContent =
+    now.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+
+async function updateSyncBadge() {
+  const records = await dbGetAll('records');
+  // Badge hitung pending + error yang masih bisa retry
+  const n = records.filter(r =>
+    r.status === 'pending' ||
+    (r.status === 'error' && (r.retryCount || 0) < RETRY_DELAYS_MS.length)
+  ).length;
+  const badge = document.getElementById('syncBadge');
+  if (!badge) return;
+  if (n > 0) { badge.textContent = n; badge.style.display = 'inline-block'; }
+  else badge.style.display = 'none';
+}
+
+// ══════════════════════════════════════════════════════════
+// CLEAR DATA
+// ══════════════════════════════════════════════════════════
+// FIX 3: Sebelumnya clearData hapus semua termasuk pending/error → data loss permanen.
+// Sekarang: blok jika ada pending, minta konfirmasi berlapis jika ada error.
+async function clearData() {
+  const records = await dbGetAll('records');
+  const pendingCount = records.filter(r => r.status === 'pending').length;
+  const errorCount   = records.filter(r => r.status === 'error').length;
+
+  if (pendingCount > 0) {
+    toast(`❌ Tidak bisa hapus — masih ada ${pendingCount} data BELUM tersync!`, 'err');
+    return;
+  }
+
+  if (errorCount > 0) {
+    const lanjut = confirm(
+      `⚠️ PERHATIAN!\n\n` +
+      `Ada ${errorCount} data yang GAGAL sync ke Sheets.\n` +
+      `Data ini belum masuk ke Google Sheets.\n\n` +
+      `Yakin ingin hapus data ini secara permanen?`
+    );
+    if (!lanjut) return;
+  } else {
+    const lanjut = confirm('Hapus semua data P2H lokal yang sudah tersync?');
+    if (!lanjut) return;
+  }
+
+  await dbClearAll('records');
+  updateStats();
+  toast('🗑 Data lokal dihapus', 'ok');
+}
+
+// ══════════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════════
+let toastTimer;
+function toast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show' + (type === 'ok' ? ' ok-toast' : type === 'err' ? ' err-toast' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.className = '', 3000);
+}
+
+// ══════════════════════════════════════════════════════════
+// AUTO-SYNC ENGINE — 3 MEKANISME
+// ══════════════════════════════════════════════════════════
+
+let _autoSyncInterval = null;
+let _isSyncing = false;
+let _lastOnlineState = navigator.onLine;
+
+// Cek apakah ada data pending
+async function hasPendingData() {
+  const records = await dbGetAll('records');
+  return records.some(r => r.status === 'pending' || r.status === 'error');
+}
+
+// FIX 1: Ping aktual ke GAS — navigator.onLine tidak bisa dipercaya
+// di Android WebView / sinyal lemah. Tanpa ini sync dikira berhasil padahal gagal.
+// FIX 3: navigator.onLine TIDAK lagi jadi gate di awal — itu yang bikin
+// auto-sync silent-skip walau koneksi aktual hidup. Ping aktual selalu dicoba;
+// navigator.onLine cuma dipakai sebagai shortcut kalau memang OS sendiri lapor offline
+// (skip 1 fetch sia-sia), bukan sebagai sumber kebenaran utama.
+async function isGASReachable() {
+  if (!GAS_URL) return false;
+  try {
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), 6000);
+    const r = await fetch(GAS_URL + '?ping=1', {
+      method: 'GET',
+      mode: 'no-cors',
+      redirect: 'follow',
+      signal: ctrl.signal
+    });
+    clearTimeout(tid);
+    // GAS selalu redirect 302 ke domain lain → browser return opaque response
+    // r.ok = false untuk opaque, tapi r.type = 'opaque' berarti server tercapai
+    return r.type === 'opaque' || r.ok;
+  } catch {
+    return false;
+  }
+}
+
+// FIX 3: Bersihkan jadwal retry basi dari record 'error' lama
+// (peninggalan kegagalan sebelum backend GAS dibenahi), supaya
+// tidak nyangkut nunggu nextRetryAt yang ditetapkan saat backend masih rusak.
+async function resetStaleRetries() {
+  try {
+    const records = await dbGetAll('records');
+    const stale = records.filter(r => r.status === 'error');
+    for (const r of stale) {
+      await dbUpdate('records', r.localId, {
+        nextRetryAt: null,
+        retryCount: 0
+      });
+    }
+  } catch (e) {
+    console.log('[resetStaleRetries] error:', e);
+  }
+}
+
+// Core: coba sync kalau kondisi memungkinkan
+async function tryAutoSync(source) {
+  if (_isSyncing) return;
+  if (!GAS_URL) return;
+  const pending = await hasPendingData();
+  if (!pending) return;
+  // Register Background Sync setiap kali ada pending — jaga-jaga SW belum trigger
+  requestBackgroundSync();
+  // Gunakan ping aktual, bukan navigator.onLine
+  const reachable = await isGASReachable();
+  if (!reachable) return;
+
+  _isSyncing = true;
+  console.log('[AutoSync] Triggered by:', source);
+  try {
+    await syncAll();
+  } finally {
+    _isSyncing = false;
+  }
+}
+
+// MEKANISME 1: Event listener online/offline (native browser)
+function setupOnlineListener() {
+  window.addEventListener('online', () => {
+    updateOnlineStatus();
+    setTimeout(() => tryAutoSync('online-event'), 1500);
+  });
+  window.addEventListener('offline', () => {
+    updateOnlineStatus();
+    _lastOnlineState = false;
+  });
+}
+
+// MEKANISME 2: Polling setiap 30 detik
+// Backup untuk Android WebView & iOS Safari yang sering
+// tidak trigger event 'online' dengan benar
+function setupPolling() {
+  _autoSyncInterval = setInterval(async () => {
+    const nowOnline = navigator.onLine;
+    if (nowOnline && !_lastOnlineState) {
+      updateOnlineStatus();
+      setTimeout(() => tryAutoSync('polling-reconnect'), 1500);
+    }
+    _lastOnlineState = nowOnline;
+    if (nowOnline) {
+      await tryAutoSync('polling-interval');
+    }
+  }, 15000);
+}
+
+// MEKANISME 3: Visibility change
+// Saat operator buka kembali app setelah HP di-lock / ganti tab
+function setupVisibilitySync() {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      updateOnlineStatus();
+      setTimeout(() => tryAutoSync('visibility-change'), 2000);
+    }
+  });
+}
+
+// Update banner offline
+function updateOnlineStatus() {
+  const banner = document.getElementById('offlineBanner');
+  const online = navigator.onLine;
+  if (!online) banner.classList.add('show');
+  else banner.classList.remove('show');
+  _lastOnlineState = online;
+}
+
+// ══════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════
+(async () => {
+  await initDB();
+  await loadSettings();
+  updateStats();
+  updateOnlineStatus();
+
+  // Cek profil: kalau belum ada, paksa setup dulu
+  if (!settings.defNama || !settings.defUnitType) {
+    // Tampilkan settings page tapi dengan modal setup di atasnya
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-settings').classList.add('active');
+    document.getElementById('nav-settings').classList.add('active');
+    document.getElementById('setupModal').classList.add('show');
+  } else {
+    renderHomeUnit();
+    // Kunci dropdown tipe unit di settings (butuh PIN untuk ubah)
+    const sel = document.getElementById('defUnitType');
+    if (sel) sel.disabled = true;
+  }
+
+  // Aktifkan 3 mekanisme auto-sync
+  setupOnlineListener();
+  setupPolling();
+  setupVisibilitySync();
+
+  // FIX 3: Record berstatus 'error' bisa punya nextRetryAt yang dijadwalkan
+  // jauh ke depan (sampai 1 jam) dari kegagalan SEBELUM backend GAS dibenahi.
+  // Tanpa ini, record lama tetap nunggu jadwal basi walau backend sudah sehat.
+  // Reset sekali di awal sesi app dibuka — beri kesempatan retry langsung.
+  await resetStaleRetries();
+
+  // Coba sync langsung saat app pertama dibuka
+  setTimeout(() => tryAutoSync('app-init'), 2000);
+
+  // Register Service Worker (Blob URL — tidak butuh file sw.js terpisah)
+  await registerSW();
+})();
+
+// ══════════════════════════════════════════════════════════
+// SERVICE WORKER REGISTRATION
+// SW di-load dari file sw.js terpisah (wajib — browser tidak
+// izinkan SW dari Blob URL karena alasan keamanan).
+// ══════════════════════════════════════════════════════════
+async function registerSW() {
+  if (!('serviceWorker' in navigator)) {
+    console.log('[SW] Browser tidak support Service Worker');
+    return;
+  }
+  try {
+    const reg = await navigator.serviceWorker.register('./sw.js', { scope: './' });
+    console.log('[SW] Terdaftar:', reg.scope);
+    window._swReg = reg;
+
+    // Dengarkan pesan dari SW (sync berhasil saat background)
+    navigator.serviceWorker.addEventListener('message', async e => {
+      if (e.data && e.data.type === 'SYNC_SUCCESS') {
+        console.log('[SW→App] Background sync sukses, localId:', e.data.localId);
+        await updateStats();
+        renderHistory();
+        toast('✅ Data P2H tersync otomatis!', 'ok');
+      }
+    });
+
+  } catch (err) {
+    console.warn('[SW] Gagal register:', err.message);
+    // Graceful degradation — polling 15 detik + online event tetap jalan
+  }
+}
+
+// Dipanggil setiap kali ada data pending → browser queue sync saat dapat jaringan
+async function requestBackgroundSync() {
+  if (!window._swReg) return;
+  try {
+    if ('sync' in window._swReg) {
+      await window._swReg.sync.register('p2h-sync');
+      console.log('[BgSync] Tag terdaftar: p2h-sync');
+    }
+  } catch (e) {
+    console.warn('[BgSync] Gagal register tag:', e.message);
+  }
+}
+</script>
+</body>
+</html>
