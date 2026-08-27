@@ -8,6 +8,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="P2H MAKKURAGA GRUP"/>
 <link rel="manifest" href="./manifest.json"/>
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png"/>
+<link rel="apple-touch-icon" href="./apple-touch-icon.png"/>
 <title>P2H MAKKURAGA GRUP - Site Kolonodale</title>
 <style>
 :root {
@@ -33,7 +35,12 @@
   --shadow-md:0 4px 12px rgba(0,0,0,.1);
 }
 * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-html,body { height:100%; background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,-apple-system,sans-serif; font-size:14px; }
+html,body { height:100%; background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,-apple-system,sans-serif; font-size:14px; overscroll-behavior-y:contain; }
+/* Cegah gesture "tarik dari atas" di HP diteruskan browser jadi
+   pull-to-refresh/navigasi keluar (yang bikin form ke-reset).
+   overscroll-behavior-y:contain di html/body + .page mengunci
+   efek overscroll di dalam area scroll masing-masing, bukan bocor
+   ke browser di luar app. */
 
 /* ── TOPBAR ── */
 #app { display:flex; flex-direction:column; height:100%; }
@@ -64,6 +71,15 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'S
 }
 .sync-btn:hover  { background:var(--accent-dk); }
 .sync-btn:disabled { opacity:.5; cursor:not-allowed; }
+.refresh-btn {
+  width:36px; height:36px; flex-shrink:0;
+  background:var(--white); border:1.5px solid var(--border); border-radius:9px;
+  font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.refresh-btn:hover  { border-color:var(--accent); background:var(--accent-lt); }
+.refresh-btn:active:not(:disabled) { transform:scale(0.9); background:var(--accent-lt); }
+.refresh-btn:disabled { opacity:.5; cursor:not-allowed; }
+.refresh-btn.spinning { animation:spin .8s linear infinite; }
 .sync-badge {
   background:#fff; color:var(--accent);
   border-radius:20px; padding:1px 6px;
@@ -72,7 +88,7 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'S
 }
 
 /* ── PAGES ── */
-.page { display:none; flex:1; overflow-y:auto; padding-bottom:88px; }
+.page { display:none; flex:1; overflow-y:auto; overscroll-behavior-y:contain; padding-bottom:88px; }
 .page.active { display:block; }
 
 /* ── BOTTOM NAV ── */
@@ -99,6 +115,22 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'S
   background:var(--accent); border-radius:50%;
   position:absolute; top:6px; right:calc(50% - 16px);
 }
+.bnav-badge {
+  position:absolute; top:2px; right:calc(50% - 18px);
+  background:var(--nok); color:#fff; font-size:10px; font-weight:700;
+  min-width:16px; height:16px; border-radius:8px; padding:0 4px;
+  display:flex; align-items:center; justify-content:center; line-height:1;
+}
+.apv-tab-btn {
+  flex:1; padding:9px 6px; border-radius:9px; border:1.5px solid var(--border);
+  background:var(--white); color:var(--text2); font-size:12px; font-weight:700;
+  cursor:pointer;
+}
+.apv-tab-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+.rekap-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+@media (max-width:420px) { .rekap-grid { grid-template-columns:1fr; } }
+.apv-type-h { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.6px; margin:14px 2px 6px; }
+.hist-item-info .meta-nama { font-size:12px; color:var(--text2); margin-top:1px; }
 
 /* ── OFFLINE BANNER ── */
 .offline-banner {
@@ -242,6 +274,20 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'S
 .toggle-btn.nok { background:var(--nok-lt); border-color:var(--nok); color:var(--nok); }
 .chk-item.is-ok  { border-color:var(--ok); }
 .chk-item.is-nok { border-color:var(--nok); box-shadow:0 2px 8px rgba(220,38,38,.12); }
+.chk-note-wrap { display:none; margin-top:10px; }
+.chk-note-wrap.show { display:block; }
+.chk-note-wrap label {
+  display:block; font-size:11px; font-weight:700; color:var(--nok);
+  margin-bottom:5px;
+}
+.chk-note-wrap textarea {
+  width:100%; min-height:52px; resize:vertical;
+  border:1.5px solid var(--nok); background:var(--nok-lt);
+  border-radius:9px; padding:9px 11px;
+  font-size:13px; font-family:inherit; color:var(--text);
+}
+.chk-note-wrap textarea::placeholder { color:#f3a9a9; }
+.chk-note-wrap textarea:focus { outline:none; border-color:var(--nok); }
 
 /* ── SUBMIT ── */
 .submit-btn {
@@ -283,7 +329,7 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'S
 .hist-item .status-dot.error   { background:var(--nok); }
 .hist-item-info { flex:1; min-width:0; }
 .hist-item-info .unit { font-weight:700; font-size:13px; color:var(--text); }
-.hist-item-info .meta { font-size:11px; color:var(--muted); margin-top:2px; }
+.hist-item-info .meta { font-size:13px; color:var(--muted); margin-top:2px; }
 .hist-status { font-size:10px; font-weight:700; margin-top:5px; display:inline-block; border-radius:20px; padding:2px 8px; }
 .hist-status.synced  { background:var(--ok-lt);  color:var(--ok); }
 .hist-status.pending { background:var(--accent-lt); color:var(--accent); }
@@ -546,10 +592,15 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'S
         <div class="sub">Site Kolonodale</div>
       </div>
     </div>
-    <button class="sync-btn" id="syncBtn" onclick="syncAll()">
-      ↑ Sync
-      <span class="sync-badge" id="syncBadge" style="display:none">0</span>
-    </button>
+    <div class="topbar-right" style="margin-left:auto;display:flex;gap:8px;">
+      <button class="refresh-btn" id="masterUnitRefreshBtn" onclick="location.reload()" title="Refresh halaman">
+        🔄
+      </button>
+      <button class="sync-btn" id="syncBtn" onclick="syncAll(true)" style="margin-left:0">
+        ↑ Sync
+        <span class="sync-badge" id="syncBadge" style="display:none">0</span>
+      </button>
+    </div>
   </div>
 
   <!-- PAGE: HOME -->
@@ -603,7 +654,7 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'S
     <div class="hist-filter">
       <button class="active" onclick="filterHist('all',this)">Semua</button>
       <button onclick="filterHist('pending',this)">⏳ Pending</button>
-      <button onclick="filterHist('synced',this)">✅ Tersync</button>
+      <button onclick="filterHist('synced',this)">✅ Terkirim</button>
     </div>
     <div class="hist-list" id="histList"></div>
   </div>
@@ -650,8 +701,31 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'S
         </div>
       </div>
 
-      <button class="danger-btn" onclick="clearData()" style="margin-top:4px">🗑 Hapus Semua Data Lokal</button>
+      <div class="settings-section" style="margin-top:20px">
+        <h3>🔄 Master Unit</h3>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:10px">
+          Tarik ulang daftar unit &amp; sandi approval terbaru dari sheet "Master Unit".
+        </p>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:10px" id="masterUnitLastSync">Belum pernah sync.</p>
+        <button id="masterUnitSyncBtn" onclick="syncMasterUnit(true)"
+          style="width:100%;background:var(--white);border:1.5px solid var(--accent);color:var(--accent);
+          border-radius:11px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;
+          display:flex;align-items:center;justify-content:center;gap:8px;">
+          🔄 Sync Master Unit
+        </button>
+      </div>
+
+      <button class="danger-btn" onclick="clearData()" style="margin-top:20px">🗑 Hapus Semua Data Lokal</button>
     </div>
+  </div>
+
+  <!-- PAGE: APPROVE -->
+  <div class="page" id="page-approve">
+    <div class="home-header">
+      <h1>Approve P2H</h1>
+      <p>Untuk Mekanik, Pengawas, dan HSE</p>
+    </div>
+    <div class="settings-body" id="approveBody"></div>
   </div>
 
   <!-- BOTTOM NAV -->
@@ -663,6 +737,11 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'S
     <button class="bnav-item" id="nav-history" onclick="safeShowPage('history')" style="position:relative">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       Riwayat
+    </button>
+    <button class="bnav-item" id="nav-approve" onclick="safeShowPage('approve')" style="position:relative">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      Approve
+      <span class="bnav-badge" id="approveBadge" style="display:none">0</span>
     </button>
     <button class="bnav-item" id="nav-settings" onclick="safeShowPage('settings')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
@@ -678,6 +757,19 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'S
       <button class="modal-close" onclick="closeDetailModal()">✕ Tutup</button>
     </div>
     <div class="modal-body" id="detailBody"></div>
+  </div>
+</div>
+
+<!-- MODAL KONFIRMASI APPROVE -->
+<div class="confirm-overlay" id="confirmApproveModal">
+  <div class="confirm-box" style="max-width:320px">
+    <div class="icon">✅</div>
+    <h4>Konfirmasi Approve</h4>
+    <p id="confirmApproveText">Approve P2H ini?</p>
+    <div class="confirm-btns">
+      <button class="confirm-cancel" onclick="closeConfirmApprove()">Batal</button>
+      <button class="confirm-ok" onclick="doApprove()">Ya, Approve</button>
+    </div>
   </div>
 </div>
 
@@ -945,14 +1037,15 @@ const FORMS = {
       'Pastikan APAR Tersedia dan Siap Digunakan',
       'Pastikan Kotak P3K Tersedia',
       'Pastikan Kunci Roda dan Dongkrak Tersedia',
-      'Periksa Kondisi dan Ketersediaan Traffic Cone',
-      'Periksa kondisi dan ketersediaan Wheel Chock'
+      'Periksa Kondisi dan Ketersediaan Traffic Cone.',
+      'Periksa kondisi dan ketersediaan Wheel Chock.'
     ]
   }
 };
 
 // ── UNIT OPTIONS PER TYPE ──
-const UNIT_OPTIONS = {
+// FIX: let (bukan const) — ditimpa oleh applyMasterUnit() saat sync Master Unit berhasil.
+let UNIT_OPTIONS = {
   dt: ['807','808','816','823','865','866','869','870','871','874','875','876','879','883','884','885','890','897','898','899','8100','8102','8104','8105','8144','8145','8146','8147','8148','8149','8150','8151','8152','8153'],
   exa: ['CAT 6201','CAT 6202','CAT 51','CAT 83','CAT 85','CAT 94','M 02','M 03','M 08','M 09','M 11','M 12','M 14','M 15','M 16','M 17','M 19','M 21','M 22','M 25','M 26','M 27','M 28','M 29','M 30','M 31','M 33','M 45','M 48','M 49','M 51','M 52','M 53','M 74','M 79','M 98','M 99','M 100','M 101','M 102','M 103','M 104','MGA 811','MGA 815','MGA 829','MGA 861'],
   gdv: ['M 411','M 416','M 502','M 505','M 603'],
@@ -960,11 +1053,14 @@ const UNIT_OPTIONS = {
 };
 
 // ── GAS URL (hardcoded) ──
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbx70Llx6n_hNXXX-peHEmkmx_DaimLB-AU0kmcMX7URQlDjvwJPzdVzbRhPDNjWW5Q/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxoiDtWyT9pTyOKIkrG6sIgO_qR9ibqY4vzAFQTZVSeNlyoaCfGxvKDL7_qN1WU7f4/exec';
 
 // ── STATE ──
 let currentForm = null;
 let checklistState = {};
+let checklistNotes = {};
+let formOpenedAt = null;
+let durationInterval = null;
 let settings = {};
 let db = null;
 let currentFilter = 'all';
@@ -1300,8 +1396,10 @@ function showPage(name) {
   _pendingNavTarget = null;
   // Tutup unit search dropdown kalau terbuka
   closeUnitDropdown();
-  // Kalau profil belum diisi, paksa ke settings
-  if (name !== 'settings' && (!settings.defNama || !settings.defUnitType)) {
+  // Kalau profil belum diisi, paksa ke settings — kecuali untuk halaman
+  // Approve, yang dipakai Mekanik/Pengawas/HSE dan tidak butuh profil
+  // operator sama sekali.
+  if (name !== 'settings' && name !== 'approve' && (!settings.defNama || !settings.defUnitType)) {
     document.getElementById('setupModal').classList.add('show');
     return;
   }
@@ -1312,14 +1410,18 @@ function showPage(name) {
   if (nav) nav.classList.add('active');
   if (name === 'history') renderHistory();
   if (name === 'home') { updateStats(); renderHomeUnit(); }
+  if (name === 'approve') renderApprovePage();
   // Kunci dropdown tipe unit kecuali baru di-unlock supervisor
   if (name === 'settings') {
     const sel = document.getElementById('defUnitType');
     if (sel && settings.defUnitType) sel.disabled = true;
+    dbGet('settings', 'masterUnit').then(cached => {
+      updateMasterUnitSyncLabel(cached && cached.value ? cached.value.syncedAt : null);
+    });
   }
   window.scrollTo(0, 0);
 }
-function goHome() { showPage('home'); }
+function goHome() { if (durationInterval) { clearInterval(durationInterval); durationInterval = null; } showPage('home'); }
 
 // ══════════════════════════════════════════════════════════
 // FORM BUILDER
@@ -1403,6 +1505,9 @@ function confirmOpenForm() {
 function _openForm(type) {
   currentForm = type;
   checklistState = {};
+  checklistNotes = {};
+  formOpenedAt = Date.now();
+  if (durationInterval) clearInterval(durationInterval);
   const cfg = FORMS[type];
   document.getElementById('formTitle').textContent = cfg.title;
   document.getElementById('formSubtitle').textContent = cfg.sheet;
@@ -1451,8 +1556,9 @@ function _openForm(type) {
     </div>
     <div class="form-field">
       <label>${cfg.hmLabel}</label>
-      <input type="tel" inputmode="numeric" pattern="[0-9]*" id="f_hm"
+      <input type="tel" inputmode="decimal" pattern="[0-9]*" id="f_hm"
         placeholder="Masukkan angka ${cfg.hmLabel}..."
+        oninput="sanitizeHmInput(this)"
         style="font-size:16px;letter-spacing:0.5px;"/>
     </div>
   </div>
@@ -1474,6 +1580,7 @@ function _openForm(type) {
   cfg.items.forEach((item, i) => {
     const id = `chk_${i}`;
     checklistState[id] = '';
+    checklistNotes[id] = '';
     // Sisipkan section header jika ada
     if (cfg.sectionBreaks && cfg.sectionBreaks[i]) {
       const sb = cfg.sectionBreaks[i];
@@ -1489,6 +1596,10 @@ function _openForm(type) {
         <button class="toggle-btn" onclick="setChk(${i},'Baik',this)">✔ Baik</button>
         <button class="toggle-btn" onclick="setChk(${i},'Rusak',this)">✖ Rusak</button>
       </div>
+      <div class="chk-note-wrap" id="note_${i}">
+        <label>Keterangan Kerusakan</label>
+        <textarea id="note_input_${i}" placeholder="Tulis kerusakannya apa, mis. kampas rem..." oninput="checklistNotes['chk_${i}']=this.value"></textarea>
+      </div>
     </div>`;
   });
 
@@ -1497,11 +1608,11 @@ function _openForm(type) {
   <div class="form-section">
     <div class="section-label">📝 Catatan & Tindakan</div>
     <div class="form-field">
-      <label>Keterangan Pengecekan</label>
+      <label>Keterangan Pengecekan <span style="color:var(--nok)">*</span></label>
       <textarea id="f_keterangan" placeholder="Catatan hasil pemeriksaan..."></textarea>
     </div>
     <div class="form-field">
-      <label>Tindakan</label>
+      <label>Tindakan <span style="color:var(--nok)">*</span></label>
       <select id="f_tindakan">
         <option value="">-- Pilih Tindakan --</option>
         <option value="Dilanjutkan Beroperasi">Dilanjutkan Beroperasi</option>
@@ -1509,8 +1620,12 @@ function _openForm(type) {
       </select>
     </div>
     <div class="form-field">
-      <label>Jam Selesai P2H</label>
-      <input type="time" id="f_jamselesai"/>
+      <label>Durasi Pengisian P2H <span style="font-size:10px;color:var(--muted);font-weight:400">(otomatis, tidak perlu diisi)</span></label>
+      <div id="f_jamselesai_display" style="background:var(--bg);color:var(--text2);font-weight:700;
+        border:1.5px solid var(--border);border-radius:10px;padding:11px 13px;font-size:14px;letter-spacing:0.3px;">
+        0 menit 0 detik
+      </div>
+      <input type="hidden" id="f_jamselesai"/>
     </div>
   </div>
   <button class="submit-btn" id="submitBtn" onclick="submitForm()">
@@ -1522,6 +1637,18 @@ function _openForm(type) {
   document.getElementById('page-form').scrollTop = 0;
   // Init unit search dropdown setelah form di-render
   initUnitSearch(type);
+
+  // Tampilkan durasi pengisian berjalan otomatis — user tidak perlu isi apa-apa
+  const tickDuration = () => {
+    const el = document.getElementById('f_jamselesai_display');
+    if (!el) { clearInterval(durationInterval); return; }
+    const elapsedSec = Math.floor((Date.now() - formOpenedAt) / 1000);
+    const mnt = Math.floor(elapsedSec / 60);
+    const dtk = elapsedSec % 60;
+    el.textContent = `${mnt} menit ${dtk} detik`;
+  };
+  tickDuration();
+  durationInterval = setInterval(tickDuration, 1000);
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1601,17 +1728,68 @@ function closeUnitDropdown() {
 
 function closeUnitDropdownDelay() {
   // Delay agar onmousedown di item sempat fire sebelum blur menutup dropdown
-  _closeDropdownTimer = setTimeout(closeUnitDropdown, 200);
+  _closeDropdownTimer = setTimeout(() => {
+    closeUnitDropdown();
+    // FIX: kalau user ketik ID Unit manual yang TIDAK ADA di daftar
+    // (f_unit hidden tetap kosong karena nggak pernah benar-benar dipilih
+    // dari dropdown -- lihat filterUnitList()), hapus otomatis teks yang
+    // diketik. Tanpa ini teksnya nangkring di kotak seolah valid, padahal
+    // submitForm() sudah pasti menolaknya (unit kosong) -- yang bikin
+    // operator lapangan bingung karena kelihatan "keisi" tapi ditolak.
+    const hidden = document.getElementById('f_unit');
+    const search = document.getElementById('f_unit_search');
+    if (hidden && search && !hidden.value && search.value) {
+      search.value = '';
+      const clear = document.getElementById('unitSearchClear');
+      if (clear) clear.style.display = 'none';
+      renderUnitList('');
+    }
+  }, 200);
 }
 
+// FIX: batasi input HM/KM hanya angka + maksimal satu titik desimal.
+// pattern="[0-9]*" di HTML cuma metadata (efektif kalau browser munculin
+// validasi native saat submit) -- TIDAK memblokir huruf secara real-time
+// terutama di desktop. Ini yang benar-benar strip karakter selain
+// digit & titik setiap kali user ngetik.
+function sanitizeHmInput(el) {
+  let v = el.value.replace(/[^0-9.]/g, '');
+  const firstDot = v.indexOf('.');
+  if (firstDot !== -1) {
+    v = v.slice(0, firstDot + 1) + v.slice(firstDot + 1).replace(/\./g, '');
+  }
+  el.value = v;
+}
+
+// Klasifikasi status checklist jadi ok/nok/empty.
+// Toleran terhadap variasi format data lama dari Sheets (spasi, huruf besar/kecil, "Ada"/"Tidak Ada").
+function classifyChk(val) {
+  const v = String(val || '').trim().toLowerCase();
+  if (!v || v === '-' || v === '–') return 'empty';
+  if (v === 'baik' || v === 'ok' || v === 'ada') return 'ok';
+  if (v.startsWith('rusak') || v === 'tidak ada' || v === 'tidak ok') return 'nok';
+  return 'empty';
+}
 function setChk(i, val, btn) {
   const id = `chk_${i}`;
   checklistState[id] = val;
   const ci = document.getElementById(`ci_${i}`);
   ci.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('ok','nok'));
   ci.classList.remove('is-ok','is-nok');
-  if (val === 'Baik')  { btn.classList.add('ok');  ci.classList.add('is-ok'); }
-  else if (val === 'Rusak') { btn.classList.add('nok'); ci.classList.add('is-nok'); }
+  const noteWrap = document.getElementById(`note_${i}`);
+  if (val === 'Baik')  {
+    btn.classList.add('ok');  ci.classList.add('is-ok');
+    if (noteWrap) noteWrap.classList.remove('show');
+    checklistNotes[id] = '';
+    const noteInput = document.getElementById(`note_input_${i}`);
+    if (noteInput) noteInput.value = '';
+  }
+  else if (val === 'Rusak') {
+    btn.classList.add('nok'); ci.classList.add('is-nok');
+    // Munculkan field keterangan tanpa fokus otomatis, supaya keyboard
+    // tidak langsung terbuka — baru muncul saat user tap field-nya sendiri.
+    if (noteWrap) noteWrap.classList.add('show');
+  }
   updateProgress();
 }
 
@@ -1653,6 +1831,37 @@ async function submitForm() {
     return;
   }
 
+  // Validasi field Catatan & Tindakan — wajib diisi semua sebelum bisa Simpan
+  const keteranganEl = document.getElementById('f_keterangan');
+  const tindakanEl   = document.getElementById('f_tindakan');
+  const keterangan   = keteranganEl.value.trim();
+  const tindakan     = tindakanEl.value;
+
+  const focusInvalid = (el) => {
+    el.scrollIntoView({ behavior:'smooth', block:'center' });
+    el.style.boxShadow = '0 0 0 2px var(--nok)';
+    el.style.borderColor = 'var(--nok)';
+    setTimeout(() => { el.style.boxShadow=''; el.style.borderColor=''; }, 2000);
+  };
+
+  if (!keterangan) {
+    toast('⚠ Keterangan Pengecekan wajib diisi', 'err');
+    focusInvalid(keteranganEl);
+    return;
+  }
+  if (!tindakan) {
+    toast('⚠ Tindakan wajib dipilih', 'err');
+    focusInvalid(tindakanEl);
+    return;
+  }
+
+  // Jam Selesai P2H otomatis = waktu saat ini (jam mulai + durasi berjalan),
+  // bukan diisi manual. Ambil dari waktu sistem persis pas tombol Simpan ditekan.
+  const nowSelesai = new Date();
+  const padSel = n => String(n).padStart(2, '0');
+  const jamSelesaiAuto = `${padSel(nowSelesai.getHours())}:${padSel(nowSelesai.getMinutes())}`;
+  document.getElementById('f_jamselesai').value = jamSelesaiAuto;
+
   const cfg = FORMS[currentForm];
   const record = {
     unitType:   currentForm,
@@ -1663,13 +1872,17 @@ async function submitForm() {
     [cfg.hmLabel]: hm,
     'Keterangan Pengecekan': document.getElementById('f_keterangan').value,
     'Tindakan':             document.getElementById('f_tindakan').value,
-    'Jam Selesai P2H':      document.getElementById('f_jamselesai').value,
+    'Jam Selesai P2H':      jamSelesaiAuto,
     checklist:  {},
     status:     'pending',
     createdAt:  new Date().toISOString()
   };
   cfg.items.forEach((item, i) => {
-    record.checklist[item] = checklistState[`chk_${i}`] || '';
+    const val  = checklistState[`chk_${i}`] || '';
+    const note = String(checklistNotes[`chk_${i}`] || '').trim();
+    // Kalau Rusak dan ada catatan, tulis "Rusak: <catatan driver/operator>".
+    // Kalau Rusak tanpa catatan (boleh dikosongkan), tetap tulis "Rusak" saja.
+    record.checklist[item] = (val === 'Rusak' && note) ? `Rusak: ${note}` : val;
   });
 
   const btn = document.getElementById('submitBtn');
@@ -1678,7 +1891,11 @@ async function submitForm() {
 
   try {
     await dbPut('records', record);
-    toast('✅ P2H tersimpan!', 'ok');
+    if (navigator.onLine) {
+      toast('✅ P2H tersimpan!', 'ok');
+    } else {
+      toast('📴 P2H tersimpan di HP. Sinyal offline — ketuk Sync agar P2H terkirim ke Sheets.', 'ok', 5000);
+    }
     updateStats();
     updateSyncBadge();
     goHome();
@@ -1711,6 +1928,8 @@ function closeConfirmBack() {
 function confirmGoHome() {
   document.getElementById('confirmBack').classList.remove('show');
   checklistState = {};
+  checklistNotes = {};
+  if (durationInterval) { clearInterval(durationInterval); durationInterval = null; }
   const target = _pendingNavTarget || 'home';
   _pendingNavTarget = null;
   showPage(target);
@@ -1725,11 +1944,11 @@ async function openDetail(localId) {
   if (!r) return;
   const cfg = FORMS[r.unitType];
   const unitLabel = { dt:'Dump Truck', exa:'Excavator', gdv:'Grader/Dozer/Vibro', lv:'Light Vehicle' };
-  const statusLabel = { synced:'✅ Tersync', pending:'⏳ Belum Sync', error:'❌ Gagal Sync' };
+  const statusLabel = { synced:'✅ P2H Terkirim', pending:'⏳ Belum Sync', error:'❌ Gagal Sync' };
   const nama = r[cfg ? cfg.namaField : 'Nama Lengkap Driver'] || '-';
   const total = cfg ? cfg.items.length : 0;
   const done  = Object.values(r.checklist || {}).filter(v => v !== '').length;
-  const rusak = Object.values(r.checklist || {}).filter(v => v === 'Rusak').length;
+  const rusak = Object.values(r.checklist || {}).filter(v => classifyChk(v) === 'nok').length;
 
   document.getElementById('detailTitle').textContent = `${r['ID Unit'] || '-'} · ${unitLabel[r.unitType] || r.unitType}`;
 
@@ -1741,7 +1960,7 @@ async function openDetail(localId) {
         chkHtml += `<div class="modal-section-lbl">${cfg.sectionBreaks[i].icon} ${cfg.sectionBreaks[i].label}</div>`;
       }
       const val = r.checklist[item] || '';
-      const cls = val === 'Baik' ? 'ok' : val === 'Rusak' ? 'nok' : 'empty';
+      const cls = classifyChk(val);
       const badge = val || '—';
       chkHtml += `
         <div class="modal-chk-row ${cls}">
@@ -1753,9 +1972,11 @@ async function openDetail(localId) {
   }
   chkHtml += '</div>';
 
-  const retryBtn = (r.status === 'error' || r.status === 'pending')
-    ? `<button class="retry-btn" style="width:100%;justify-content:center;margin-top:12px" onclick="closeDetailModal();retrySingle(${r.localId})">↑ Retry Sync ke Sheets</button>`
-    : '';
+  const statusNoteModal = r.status === 'pending'
+    ? `<br>📴 P2H ini <b>belum terkirim</b> ke Sheets — masih tersimpan di HP. Ketuk Sync saat sudah dapat jaringan/online.`
+    : (r.status === 'error'
+        ? `<br>⚠ P2H ini <b>belum terkirim</b> — kemungkinan jaringan bermasalah. Cek sinyal lalu ketuk Sync untuk coba lagi.`
+        : '');
 
   document.getElementById('detailBody').innerHTML = `
     <div class="modal-meta">
@@ -1774,8 +1995,8 @@ async function openDetail(localId) {
       Status: <b>${statusLabel[r.status] || r.status}</b>
       ${r.syncedAt ? ' · Sync: ' + new Date(r.syncedAt).toLocaleString('id-ID') : ''}
       ${r.errorMsg ? `<br><span style="color:var(--nok)">${r.errorMsg}</span>` : ''}
+      ${statusNoteModal}
     </div>
-    ${retryBtn}
   `;
 
   document.getElementById('detailModal').classList.add('show');
@@ -1864,16 +2085,22 @@ function shouldRetryRecord(rec) {
   return false;
 }
 
-async function syncAll() {
+async function syncAll(manual, force) {
   if (!GAS_URL) { toast('⚠ URL GAS belum diset', 'err'); return; }
-  if (_isSyncing && arguments[0] !== 'force') { toast('⏳ Sedang sync, harap tunggu...', ''); return; }
+  if (_isSyncing && !force) { toast('⏳ Sedang sync, harap tunggu...', ''); return; }
 
   _isSyncing = true;
   const btn = document.getElementById('syncBtn');
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Sync...'; }
 
   const records = await dbGetAll('records');
-  const toSync = records.filter(shouldRetryRecord);
+  // Klik tombol Sync manual = perintah eksplisit dari user, jadi harus
+  // langsung coba kirim ulang SEMUA yang belum tersync (pending/error),
+  // walau lagi nunggu jadwal auto-retry (backoff) atau sudah max-retry.
+  // Auto-sync di background tetap hormat jadwal backoff via shouldRetryRecord.
+  const toSync = manual
+    ? records.filter(r => r.status === 'pending' || r.status === 'error')
+    : records.filter(shouldRetryRecord);
 
   if (toSync.length === 0) {
     toast('✅ Semua data tersync', 'ok');
@@ -1942,6 +2169,7 @@ async function syncAll() {
   }
   updateSyncBadge();
   updateStats();
+  renderHistory();
   if (failed === 0) toast(`✅ ${success} data tersync ke Sheets`, 'ok');
   else toast(`⚠ ${success} berhasil, ${failed} gagal (auto-retry aktif)`, 'err');
   _isSyncing = false;
@@ -1970,12 +2198,22 @@ function buildPayload(rec) {
 async function renderHistory() {
   const records = await dbGetAll('records');
   records.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
-  let filtered = records;
-  if (currentFilter === 'pending') filtered = records.filter(r => r.status === 'pending');
-  else if (currentFilter === 'synced') filtered = records.filter(r => r.status === 'synced');
-  else if (['dt','exa','gdv','lv'].includes(currentFilter)) filtered = records.filter(r => r.unitType === currentFilter);
 
-  document.getElementById('histCount').textContent = `${filtered.length} dari ${records.length} data`;
+  // Hanya tampilkan data bulan berjalan — bulan lalu otomatis hilang
+  // dari Riwayat begitu tanggal berganti bulan (data tetap aman di
+  // Sheets/IndexedDB, ini cuma filter tampilan).
+  const now = new Date();
+  const monthRecords = records.filter(r => {
+    const d = new Date(r.createdAt);
+    return !isNaN(d) && d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  });
+
+  let filtered = monthRecords;
+  if (currentFilter === 'pending') filtered = monthRecords.filter(r => r.status === 'pending');
+  else if (currentFilter === 'synced') filtered = monthRecords.filter(r => r.status === 'synced');
+  else if (['dt','exa','gdv','lv'].includes(currentFilter)) filtered = monthRecords.filter(r => r.unitType === currentFilter);
+
+  document.getElementById('histCount').textContent = `${filtered.length} dari ${monthRecords.length} data`;
 
   if (filtered.length === 0) {
     document.getElementById('histList').innerHTML = `
@@ -1987,7 +2225,7 @@ async function renderHistory() {
   }
 
   const unitLabel = { dt:'Dump Truck', exa:'Excavator', gdv:'Grader/Dozer/Vibro', lv:'Light Vehicle' };
-  const statusLabel = { synced:'✅ Tersync ke Sheets', pending:'⏳ Belum tersync', error:'❌ Gagal sync' };
+  const statusLabel = { synced:'✅ P2H Terkirim', pending:'⏳ Belum tersync', error:'❌ Gagal sync' };
 
   document.getElementById('histList').innerHTML = filtered.map(r => {
     const cfg = FORMS[r.unitType];
@@ -2000,15 +2238,17 @@ async function renderHistory() {
           const remaining = Math.max(0, Math.ceil((r.nextRetryAt - Date.now()) / 60000));
           const maxed = (r.retryCount || 0) >= RETRY_DELAYS_MS.length;
           return maxed
-            ? `<div style="font-size:10px;color:var(--nok);margin-top:2px">⛔ Max retry tercapai — coba manual</div>`
+            ? `<div style="font-size:10px;color:var(--nok);margin-top:2px">⛔ Max auto-retry tercapai — ketuk tombol Sync di pojok kanan atas</div>`
             : remaining > 0
               ? `<div style="font-size:10px;color:var(--accent);margin-top:2px">🔄 Auto-retry dalam ~${remaining} menit</div>`
               : `<div style="font-size:10px;color:var(--accent);margin-top:2px">🔄 Auto-retry segera...</div>`;
         })()
       : '';
-    const retryBtn = (r.status === 'error' || r.status === 'pending')
-      ? `<button class="retry-btn" onclick="event.stopPropagation();retrySingle(${r.localId})">↑ Retry Sync</button>`
-      : '';
+    const statusNote = r.status === 'pending'
+      ? `<div style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5">📴 P2H ini <b>belum terkirim</b> ke Sheets — masih tersimpan di HP. Silakan ketuk <b>Sync</b> saat sudah dapat jaringan/online.</div>`
+      : (r.status === 'error'
+          ? `<div style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5">⚠ P2H ini <b>belum terkirim</b> — kemungkinan jaringan bermasalah. Cek sinyal, lalu ketuk <b>Sync</b> untuk coba kirim ulang.</div>`
+          : '');
     return `
     <div class="hist-item" onclick="openDetail(${r.localId})" style="cursor:pointer">
       <div class="status-dot ${r.status}"></div>
@@ -2017,9 +2257,9 @@ async function renderHistory() {
         <div class="meta">${nama}</div>
         <div class="meta">${tgl} · Jam Mulai: ${r.jam || '-'} · Checklist ${done}/${total}</div>
         <span class="hist-status ${r.status}">${statusLabel[r.status] || r.status}</span>
+        ${statusNote}
         ${r.errorMsg ? `<div style="font-size:10px;color:var(--nok);margin-top:3px">${r.errorMsg}</div>` : ''}
         ${retryInfo}
-        ${retryBtn}
       </div>
       <div style="color:var(--muted);font-size:16px;align-self:center">›</div>
     </div>`;
@@ -2104,12 +2344,377 @@ async function clearData() {
 // TOAST
 // ══════════════════════════════════════════════════════════
 let toastTimer;
-function toast(msg, type) {
+function emptyStateHtml(msg) {
+  return `<div class="empty-state"><div class="icon">📭</div><p>${msg}</p></div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+// REKAP HARIAN — tab di dalam Approve, di samping History Approve
+// Bandingkan daftar unit di Master Unit vs data P2H sheet hari ini,
+// per tipe unit (DT/EXA/GDV/LV). TIDAK ada grouping Lokasi/Penyewa
+// seperti contoh referensi (Buleleng/Torete + PT TAS/AAS/Mahligai/
+// PT NEC) — Master Unit Kolonodale cuma punya kolom ID Unit & Jenis
+// Unit, tidak ada kolom Lokasi/Penyewa sama sekali. Kalau kolom itu
+// mau ditambahkan di sheet Master Unit, bagian ini bisa dikembangkan
+// jadi accordion Lokasi->Penyewa sama seperti referensi.
+// ══════════════════════════════════════════════════════════
+let _rekapData = null;
+
+// Ubah value tanggal apapun bentuknya (string "dd/MM/yyyy HH:mm", ISO
+// "yyyy-MM-ddTHH:mm:ss.sssZ" hasil auto-convert Google Sheets, atau Date
+// object) jadi key seragam "dd/MM/yyyy". Return null kalau tak terparse.
+function _rekapDateKey(v) {
+  if (v === null || v === undefined || v === '') return null;
+  if (v instanceof Date && !isNaN(v.getTime())) {
+    const p = n => String(n).padStart(2, '0');
+    return `${p(v.getDate())}/${p(v.getMonth() + 1)}/${v.getFullYear()}`;
+  }
+  const s = String(v).trim();
+  let m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);           // dd/MM/yyyy...
+  if (m) return `${m[1].padStart(2,'0')}/${m[2].padStart(2,'0')}/${m[3]}`;
+  m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);                      // yyyy-MM-dd... (ISO)
+  if (m) return `${m[3]}/${m[2]}/${m[1]}`;
+  const d = new Date(s);
+  if (!isNaN(d.getTime())) {
+    const p = n => String(n).padStart(2, '0');
+    return `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()}`;
+  }
+  return null;
+}
+function _rekapDateSortVal(key) {
+  const [d, m, y] = key.split('/').map(Number);
+  return y * 10000 + m * 100 + d;
+}
+function _rekapDateKeyToLabel(key) {
+  const [d, m, y] = key.split('/').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+// Sama seperti _rekapDateKeyToLabel tapi TANPA nama hari — dipakai
+// khusus di teks "Salin ke WA" (format "27 Agustus 2026").
+function _rekapDateKeyToDateLabel(key) {
+  const [d, m, y] = key.split('/').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+}
+
+async function renderRekapHarianShell() {
+  const area = document.getElementById('rekapHarianArea');
+  if (!area) return;
+  const now = new Date();
+  const tglLabel = now.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  area.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:2px 2px 12px;flex-wrap:wrap;gap:8px">
+      <div style="font-size:12px;color:var(--muted)" id="rekapTglLabel">Rekap ${tglLabel}</div>
+      <div style="position:relative;display:inline-block">
+        <button id="salinChatBtn" onclick="toggleSalinChatMenu()" style="background:#fff;border:1.5px solid var(--border);border-radius:9px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer">📋 Salin ke WA ▾</button>
+        <div id="salinChatMenu" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:#fff;border:1.5px solid var(--border);border-radius:9px;box-shadow:0 6px 18px rgba(0,0,0,.10);min-width:200px;z-index:50;overflow:hidden">
+          <button onclick="salinChatRekap(['dt'])" style="display:block;width:100%;text-align:left;padding:10px 12px;font-size:12px;font-weight:600;background:none;border:none;cursor:pointer">🚛 Dump Truck</button>
+          <button onclick="salinChatRekap(['exa'])" style="display:block;width:100%;text-align:left;padding:10px 12px;font-size:12px;font-weight:600;background:none;border:none;border-top:1px solid var(--border);cursor:pointer">🏗️ Excavator</button>
+          <button onclick="salinChatRekap(['gdv'])" style="display:block;width:100%;text-align:left;padding:10px 12px;font-size:12px;font-weight:600;background:none;border:none;border-top:1px solid var(--border);cursor:pointer">🚧 Grader/Dozer/Vibro</button>
+          <button onclick="salinChatRekap(['lv'])" style="display:block;width:100%;text-align:left;padding:10px 12px;font-size:12px;font-weight:600;background:none;border:none;border-top:1px solid var(--border);cursor:pointer">🚗 Light Vehicle</button>
+        </div>
+      </div>
+    </div>
+    <select id="rekapTypeFilter" onchange="renderRekapFiltered()" style="width:100%;padding:11px 14px;margin-bottom:12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-weight:700;color:var(--text);background:#fff;-webkit-appearance:none;appearance:none;cursor:pointer">
+      <option value="all">📋 Semua Jenis Unit</option>
+      <option value="dt">🚛 Dump Truck</option>
+      <option value="exa">🏗️ Excavator</option>
+      <option value="gdv">🚧 Grader/Dozer/Vibro</option>
+      <option value="lv">🚗 Light Vehicle</option>
+    </select>
+    <div id="rekapGrid">${emptyStateHtml('⏳ Memuat rekap...')}</div>
+    <div id="rekapSudahListArea" style="margin-top:16px"></div>
+  `;
+  await loadRekapHarianData();
+}
+
+async function loadRekapHarianData() {
+  const grid = document.getElementById('rekapGrid');
+  if (!grid) return;
+  if (!GAS_URL) { grid.innerHTML = emptyStateHtml('⚠ URL GAS belum diset'); return; }
+
+  const now = new Date();
+  const p = n => String(n).padStart(2, '0');
+  const todayKey = `${p(now.getDate())}/${p(now.getMonth() + 1)}/${now.getFullYear()}`; // dd/MM/yyyy
+
+  try {
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), 20000);
+    const [muRes, dataRes] = await Promise.all([
+      fetch(GAS_URL + '?action=getMasterUnit', { signal: ctrl.signal }),
+      fetch(GAS_URL, { signal: ctrl.signal })
+    ]);
+    clearTimeout(tid);
+    const mu   = await muRes.json();
+    const data = await dataRes.json();
+    if (mu.status !== 'ok') throw new Error(mu.message || 'Gagal ambil Master Unit');
+
+    const typeMeta = {
+      dt:  { label:'Dump Truck',           icon:'🚛' },
+      exa: { label:'Excavator',            icon:'🏗️' },
+      gdv: { label:'Grader/Dozer/Vibro',   icon:'🚧' },
+      lv:  { label:'Light Vehicle',        icon:'🚗' }
+    };
+
+    // Normalisasi tanggal semua record (tahan terhadap sheet yang
+    // auto-convert teks tanggal jadi Date/ISO), lalu cari tanggal target:
+    // pakai hari ini kalau ada datanya, kalau tidak fallback ke tanggal
+    // terbaru yang datanya tersedia — jadi rekap selalu "hidup" tiap hari
+    // tanpa perlu ubah kode.
+    let latestKey = null;
+    Object.keys(typeMeta).forEach(type => {
+      ((data && data[type]) || []).forEach(r => {
+        const key = _rekapDateKey(r['Tanggal P2H']);
+        if (key && (!latestKey || _rekapDateSortVal(key) > _rekapDateSortVal(latestKey))) latestKey = key;
+      });
+    });
+    const hasDataToday = Object.keys(typeMeta).some(type =>
+      ((data && data[type]) || []).some(r => _rekapDateKey(r['Tanggal P2H']) === todayKey)
+    );
+    const targetKey  = hasDataToday ? todayKey : (latestKey || todayKey);
+    const isFallback = targetKey !== todayKey;
+
+    let totalUnit = 0, totalSudah = 0;
+    const byType = [];
+
+    Object.keys(typeMeta).forEach(type => {
+      const meta    = typeMeta[type];
+      const units   = (mu.units && mu.units[type]) || [];
+      const records = (data && data[type]) || [];
+
+      const sudahMap = {};
+      records.forEach(r => {
+        if (_rekapDateKey(r['Tanggal P2H']) !== targetKey) return;
+        const idUnit = String(r['ID Unit'] || '').trim();
+        if (idUnit && !sudahMap[idUnit]) sudahMap[idUnit] = r;
+      });
+
+      const sudahList = units.filter(u => sudahMap[u]);
+      const belumList = units.filter(u => !sudahMap[u]);
+      totalUnit  += units.length;
+      totalSudah += sudahList.length;
+
+      // jam pengisian per unit yang sudah P2H, buat ditampilkan di detail
+      const sudahJam = {};
+      sudahList.forEach(u => { sudahJam[u] = sudahMap[u]['Jam Pengisian P2H'] || ''; });
+
+      // Nama + unit + jam per unit yang sudah P2H — dipakai buat list
+      // gabungan 4 sheet di bawah grid. Nama driver (DT/LV) dan nama
+      // operator (EXA/GDV) beda kolom, jadi dicoba dua-duanya.
+      const sudahDetail = sudahList.map(u => {
+        const r = sudahMap[u];
+        const nama = r['Nama Lengkap Driver'] || r['Nama Lengkap Operator'] || '-';
+        return { unit: u, nama, jam: r['Jam Pengisian P2H'] || '' };
+      });
+
+      byType.push({
+        type, label: meta.label, icon: meta.icon,
+        total: units.length, sudah: sudahList.length, belum: belumList.length,
+        belumList, sudahList, sudahJam, sudahDetail
+      });
+    });
+
+    const resolvedLabel = isFallback
+      ? `${_rekapDateKeyToLabel(targetKey)} (belum ada data hari ini)`
+      : _rekapDateKeyToLabel(targetKey);
+    const tglLabelEl = document.getElementById('rekapTglLabel');
+    if (tglLabelEl) tglLabelEl.textContent = 'Rekap ' + resolvedLabel;
+
+    _rekapData = {
+      tglLabel: resolvedLabel,
+      targetKey,
+      byType, totalUnit, totalSudah
+    };
+
+    renderRekapFiltered();
+
+  } catch (e) {
+    grid.className = '';
+    grid.innerHTML = emptyStateHtml('❌ Gagal memuat rekap: ' + e.toString());
+    const listArea = document.getElementById('rekapSudahListArea');
+    if (listArea) listArea.innerHTML = '';
+  }
+}
+
+function renderRekapFiltered() {
+  if (!_rekapData) return;
+  const grid = document.getElementById('rekapGrid');
+  const listArea = document.getElementById('rekapSudahListArea');
+  if (!grid) return;
+
+  const selEl = document.getElementById('rekapTypeFilter');
+  const filterType = selEl ? selEl.value : 'all';
+  const { byType } = _rekapData;
+  const shown = filterType === 'all' ? byType : byType.filter(t => t.type === filterType);
+
+  grid.className = shown.length > 1 ? 'rekap-grid' : '';
+  grid.innerHTML = shown.map(t => `
+    <div style="background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;cursor:pointer" onclick="toggleRekapDetail('${t.type}')">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-weight:700;font-size:13px">${t.icon} ${t.label} (${t.total})</div>
+        <div style="color:var(--muted);font-size:14px" id="rekapChevron_${t.type}">›</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1;background:var(--ok-lt);border-radius:9px;padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:800;color:var(--ok)">${t.sudah}</div>
+          <div style="font-size:10px;color:var(--ok)">Sudah</div>
+        </div>
+        <div style="flex:1;background:var(--nok-lt);border-radius:9px;padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:800;color:var(--nok)">${t.belum}</div>
+          <div style="font-size:10px;color:var(--nok)">Belum</div>
+        </div>
+      </div>
+      <div id="rekapDetail_${t.type}" style="display:none;margin-top:10px" onclick="event.stopPropagation()">
+        ${t.sudahList.length
+          ? `<div style="font-size:11px;font-weight:700;color:var(--ok);margin-bottom:4px">✅ Sudah P2H (${t.sudahList.length})</div>
+             <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:${t.belumList.length ? '10px' : '0'}">${t.sudahList.map(u => `<span style="background:var(--ok-lt);color:var(--ok);border-radius:7px;padding:3px 8px;font-size:11px;font-weight:600">${u}${t.sudahJam[u] ? ' · ' + t.sudahJam[u] : ''}</span>`).join('')}</div>`
+          : ''}
+        ${t.belumList.length
+          ? `<div style="font-size:11px;font-weight:700;color:var(--nok);margin-bottom:4px">⚠ Belum P2H</div>
+             <div style="display:flex;flex-wrap:wrap;gap:6px">${t.belumList.map(u => `<span style="background:var(--nok-lt);color:var(--nok);border-radius:7px;padding:3px 8px;font-size:11px;font-weight:600">${u}</span>`).join('')}</div>`
+          : `<div style="font-size:11px;color:var(--ok)">✓ Semua unit sudah P2H</div>`}
+      </div>
+    </div>
+  `).join('');
+
+  if (listArea) {
+    const shownSudah  = shown.filter(t => t.sudahDetail.length);
+    const totalShown  = shown.reduce((sum, t) => sum + t.sudah, 0);
+    const headerLabel = filterType === 'all' ? 'Semua Unit' : (shown[0] ? shown[0].label : '');
+    listArea.innerHTML = !shownSudah.length
+      ? ''
+      : `
+      <div style="background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:14px 16px">
+        <div style="font-weight:700;font-size:13px;margin-bottom:10px">✅ Sudah P2H — ${headerLabel} (${totalShown})</div>
+        ${shownSudah.map(t => `
+          <div style="margin-bottom:12px">
+            ${filterType === 'all' ? `<div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:8px">${t.icon} ${t.label}</div>` : ''}
+            <div style="display:flex;flex-direction:column;gap:6px">
+              ${t.sudahDetail.map(d => `
+                <div style="display:flex;justify-content:space-between;align-items:center;background:var(--ok-lt);border-radius:8px;padding:8px 10px;font-size:12px">
+                  <div style="min-width:0">
+                    <div style="font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d.nama}</div>
+                    <div style="color:var(--muted);font-size:11px">${d.unit}</div>
+                  </div>
+                  <div style="font-weight:700;color:var(--ok);white-space:nowrap;margin-left:10px">${d.jam || '-'}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+}
+
+function toggleRekapDetail(type) {
+  const el   = document.getElementById('rekapDetail_' + type);
+  const chev = document.getElementById('rekapChevron_' + type);
+  if (!el) return;
+  const showing = el.style.display !== 'none';
+  el.style.display = showing ? 'none' : 'block';
+  if (chev) chev.textContent = showing ? '›' : '⌄';
+}
+
+function toggleSalinChatMenu() {
+  const menu = document.getElementById('salinChatMenu');
+  if (!menu) return;
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('salinChatMenu');
+  const btn  = document.getElementById('salinChatBtn');
+  if (!menu || menu.style.display === 'none') return;
+  if ((btn && btn.contains(e.target)) || menu.contains(e.target)) return;
+  menu.style.display = 'none';
+});
+
+// Label "FORM P2H ..." per tipe unit — dipakai di teks Salin ke WA
+// supaya sama persis dengan nama sheet form aslinya di backend GAS.
+const REKAP_WA_FORM_LABEL = {
+  dt:  'FORM P2H',
+  exa: 'FORM P2H EXA',
+  gdv: 'FORM P2H GRADER, DOZER, VIBRO',
+  lv:  'FORM P2H LV'
+};
+
+// Jam saat ini format "HH.MM WITA" (Asia/Makassar = GMT+8, sama
+// seperti waktu approve/backend GAS).
+function _rekapJamWITA() {
+  const now = new Date();
+  return now.toLocaleTimeString('id-ID', {
+    hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Makassar'
+  }).replace(':', '.');
+}
+
+// types: array kode kategori dipilih dari dropdown — ['dt'], ['exa'], ['gdv'], atau ['lv']
+function salinChatRekap(types) {
+  if (!_rekapData) { toast('⏳ Rekap belum selesai dimuat', 'err'); return; }
+  const { byType, targetKey } = _rekapData;
+
+  const selected = byType.filter(t => types.includes(t.type));
+  if (!selected.length) { toast('❌ Tidak ada data untuk kategori ini', 'err'); return; }
+
+  const tglLabelPendek = targetKey ? _rekapDateKeyToDateLabel(targetKey) : '';
+  const jamUpdate = _rekapJamWITA();
+
+  const blocks = selected.map(t => {
+    let block = `_${REKAP_WA_FORM_LABEL[t.type] || t.label.toUpperCase()}_\n\n`;
+    block += `📅 Tanggal: ${tglLabelPendek}\n`;
+    block += `🕖 Update Jam: ${jamUpdate} WITA\n\n`;
+    block += `✅ Sudah P2H: *${t.sudah}*/${t.total}\n`;
+
+    if (t.sudahDetail.length) {
+      block += `\n*Unit Sudah P2H (${t.sudahDetail.length}):*\n`;
+      block += t.sudahDetail.map((d, i) => `${i + 1}. ${d.unit} - ${d.nama}`).join('\n') + '\n';
+    }
+
+    block += `\n❌ Belum P2H: *${t.belum}*\n`;
+
+    if (t.belumList.length) {
+      block += `\n*Unit Belum P2H (${t.belumList.length}):*\n`;
+      block += t.belumList.join(', ');
+    }
+
+    return block;
+  });
+
+  const text = `📋 *MONITORING HARIAN P2H*\n\n${blocks.join('\n\n———\n\n')}\n\n_Dikirim dari Dashboard Monitoring P2H — Makkuraga Grup_`;
+
+  const menu = document.getElementById('salinChatMenu');
+  if (menu) menu.style.display = 'none';
+
+  const done = () => toast('✅ Teks rekap disalin, siap paste ke WhatsApp', 'ok');
+  const fail = () => toast('❌ Gagal menyalin, coba lagi', 'err');
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopyText(text, done, fail));
+  } else {
+    fallbackCopyText(text, done, fail);
+  }
+}
+
+function fallbackCopyText(text, onDone, onFail) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    onDone();
+  } catch (e) {
+    onFail();
+  }
+}
+
+function toast(msg, type, duration) {
   const el = document.getElementById('toast');
   el.textContent = msg;
   el.className = 'show' + (type === 'ok' ? ' ok-toast' : type === 'err' ? ' err-toast' : '');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.className = '', 3000);
+  toastTimer = setTimeout(() => el.className = '', duration || 3000);
 }
 
 // ══════════════════════════════════════════════════════════
@@ -2137,7 +2742,12 @@ async function isGASReachable() {
   try {
     const ctrl = new AbortController();
     const tid = setTimeout(() => ctrl.abort(), 6000);
-    const r = await fetch(GAS_URL + '?ping=1', {
+    // FIX: backend doGet cuma cek e.parameter.action === 'ping', bukan
+    // e.parameter.ping. Query lama '?ping=1' tidak pernah match apapun
+    // di doGet, jadi selalu jatuh ke default getP2HData() — scan 4 sheet
+    // sekaligus dobel baca (getValues + getDisplayValues) — jauh lebih
+    // berat dari ping seharusnya, dan menunda sync yang sebenarnya.
+    const r = await fetch(GAS_URL + '?action=ping', {
       method: 'GET',
       mode: 'no-cors',
       redirect: 'follow',
@@ -2182,13 +2792,14 @@ async function tryAutoSync(source) {
   const reachable = await isGASReachable();
   if (!reachable) return;
 
-  _isSyncing = true;
   console.log('[AutoSync] Triggered by:', source);
-  try {
-    await syncAll();
-  } finally {
-    _isSyncing = false;
-  }
+  // FIX: jangan set _isSyncing di sini — syncAll() sudah mengelola flag
+  // ini sendiri (true di awal, false di akhir). Kalau di-set duluan di sini,
+  // baris pertama syncAll() ("if (_isSyncing...) return") langsung nganggap
+  // ada sync lain yang jalan, nembak toast "Sedang sync, harap tunggu..."
+  // lalu return tanpa fetch apapun — itu sebabnya auto-sync setelah Simpan
+  // P2H selalu gagal start dan data nyangkut di status pending.
+  await syncAll();
 }
 
 // MEKANISME 1: Event listener online/offline (native browser)
@@ -2241,11 +2852,611 @@ function updateOnlineStatus() {
 }
 
 // ══════════════════════════════════════════════════════════
+// MASTER UNIT — sync daftar ID Unit + sandi approval dari sheet
+// "Master Unit" (kolom A=ID Unit, B=Jenis Unit berisi NAMA SHEET
+// tujuan form: "Form P2H"/"Form P2H EXA"/"Form P2H Grader, Dozer,
+// Vibro"/"Form P2H LV"; D2/E2/F2 = sandi Mekanik/Pengawas/HSE —
+// satu sandi global per jabatan, BUKAN per unit).
+// Backend (Code.gs) route: action=getMasterUnit.
+// Site Kolonodale TIDAK memakai Lokasi Site / Pihak Penyewa (beda
+// dari sistem Site Torete/Buleleng/Laroenai), jadi field itu sengaja
+// tidak diport ke sini.
+// ══════════════════════════════════════════════════════════
+function applyMasterUnit(units, passwords) {
+  if (!units || typeof units !== 'object') return false;
+  const totalUnit = Object.values(units).reduce((n, arr) => n + (Array.isArray(arr) ? arr.length : 0), 0);
+  if (totalUnit === 0) return false;
+  UNIT_OPTIONS = {
+    dt:  Array.isArray(units.dt)  ? units.dt  : [],
+    exa: Array.isArray(units.exa) ? units.exa : [],
+    gdv: Array.isArray(units.gdv) ? units.gdv : [],
+    lv:  Array.isArray(units.lv)  ? units.lv  : []
+  };
+  // Sandi approval — timpa HANYA kalau ada isi, supaya sel kosong di sheet
+  // tidak mengunci approver keluar (fallback tetap dipakai).
+  if (passwords && typeof passwords === 'object') {
+    ['mekanik', 'pengawas', 'hse'].forEach(role => {
+      const v = passwords[role];
+      if (typeof v === 'string' && v.trim() !== '') APPROVAL_PASSWORDS[role] = v.trim();
+    });
+  }
+  // Kalau dropdown unit sedang terbuka di form yang aktif, refresh daftarnya juga.
+  if (currentForm && document.getElementById('page-form').classList.contains('active')) {
+    _unitOptions = UNIT_OPTIONS[currentForm] || [];
+    renderUnitList(document.getElementById('f_unit_search') ? document.getElementById('f_unit_search').value : '');
+  }
+  return true;
+}
+
+async function loadMasterUnitFromCache() {
+  try {
+    const cached = await dbGet('settings', 'masterUnit');
+    if (cached && cached.value) {
+      applyMasterUnit(cached.value.units, cached.value.passwords);
+      updateMasterUnitSyncLabel(cached.value.syncedAt);
+    }
+  } catch (e) {
+    console.log('[loadMasterUnitFromCache] error:', e);
+  }
+}
+
+function updateMasterUnitSyncLabel(iso) {
+  const el = document.getElementById('masterUnitLastSync');
+  if (!el) return;
+  if (!iso) { el.textContent = 'Belum pernah sync.'; return; }
+  const d = new Date(iso);
+  el.textContent = 'Terakhir sync: ' + d.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }) +
+    ' ' + d.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
+}
+
+async function syncMasterUnit(showToast) {
+  if (!GAS_URL) {
+    if (showToast) toast('⚠ URL GAS belum diset', 'err');
+    return;
+  }
+  const btn      = document.getElementById('masterUnitSyncBtn');
+  const topbarBtn = document.getElementById('masterUnitRefreshBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Sync...'; }
+  if (topbarBtn) { topbarBtn.disabled = true; topbarBtn.classList.add('spinning'); }
+  try {
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), 15000);
+    const res = await fetch(GAS_URL + '?action=getMasterUnit', {
+      method: 'GET',
+      redirect: 'follow',
+      signal: ctrl.signal
+    });
+    clearTimeout(tid);
+    const text = await res.text();
+    let json;
+    try { json = JSON.parse(text); } catch (e) { json = null; }
+    if (json && json.status === 'ok' && applyMasterUnit(json.units, json.passwords)) {
+      const syncedAt = new Date().toISOString();
+      await dbPut('settings', {
+        key: 'masterUnit',
+        value: { units: UNIT_OPTIONS, passwords: APPROVAL_PASSWORDS, syncedAt }
+      });
+      updateMasterUnitSyncLabel(syncedAt);
+      if (showToast) toast('✅ Daftar unit diperbarui', 'ok');
+    } else {
+      if (showToast) toast('❌ Gagal ambil Master Unit dari server', 'err');
+    }
+  } catch (e) {
+    if (showToast) toast('❌ ' + (e.name === 'AbortError' ? 'Timeout' : e.message), 'err');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '🔄 Sync Master Unit'; }
+    if (topbarBtn) { topbarBtn.disabled = false; topbarBtn.classList.remove('spinning'); }
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// APPROVAL (Mekanik / Pengawas / HSE)
+// ══════════════════════════════════════════════════════════
+// Sandi per jabatan — cuma penghalang tampilan, BUKAN otentikasi aman
+// (View Source/DevTools bisa baca ini). Sumber sandi SEBENARNYA dari sheet
+// "Master Unit" (D2/E2/F2) — nilai di bawah cuma fallback SEBELUM sync
+// pertama kali berhasil. Backend (Code.gs) approveP2H() WAJIB validasi
+// terhadap sheet yang sama.
+let APPROVAL_PASSWORDS = {
+  mekanik:  'mekanik123',
+  pengawas: 'pengawas123',
+  hse:      'hse123'
+};
+const APPROVAL_ROLES = {
+  mekanik:  { label: 'Mekanik',  column: 'Diperiksa Mekanik' },
+  pengawas: { label: 'Pengawas', column: 'Diketahui Oleh Pengawas' },
+  hse:      { label: 'HSE',      column: 'Diketahui Oleh HSE' }
+};
+let approverAuth = null; // { jabatan, nama } setelah berhasil masuk
+let _approveList = [];   // cache hasil terakhir dari GAS untuk halaman Approve
+let _approveSelectedType = null; // tipe unit yg dipilih di tab Menunggu (null = tampilkan pilihan tipe dulu)
+let _approveListLoaded = false;
+let _approveTab = 'pending'; // 'pending' | 'history'
+let _approveHistory = [];
+let _approveHistoryLoaded = false;
+let _historyTanggal = null; // dd/MM/yyyy; null = pakai hari ini (dihitung ulang tiap dibuka)
+
+async function loadApproverAuth() {
+  const rec = await dbGet('settings', 'approverAuth');
+  approverAuth = (rec && rec.value) ? rec.value : null;
+}
+
+function renderApprovePage() {
+  const box = document.getElementById('approveBody');
+  if (!box) return;
+  if (!approverAuth) {
+    box.innerHTML = approveLoginHtml();
+  } else {
+    _approveTab = 'pending';
+    box.innerHTML = approveListShellHtml();
+    fetchApprovalList();
+  }
+}
+
+function approveLoginHtml() {
+  return `
+    <div class="settings-section">
+      <h3>🔐 Masuk sebagai Approver</h3>
+      <div class="settings-row">
+        <label>Jabatan</label>
+        <select id="apv_jabatan">
+          <option value="">-- Pilih Jabatan --</option>
+          <option value="mekanik">Mekanik</option>
+          <option value="pengawas">Pengawas</option>
+          <option value="hse">HSE</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <label>Nama Lengkap</label>
+        <input type="text" id="apv_nama" placeholder="Nama lengkap"/>
+      </div>
+      <div class="settings-row">
+        <label>Sandi</label>
+        <input type="password" id="apv_sandi" placeholder="Sandi sesuai jabatan"/>
+      </div>
+    </div>
+    <div id="apvLoginError" style="color:var(--nok);font-size:11px;margin:2px 2px 12px;min-height:14px"></div>
+    <button class="save-btn" onclick="approverLogin()">Masuk</button>
+  `;
+}
+
+function approverLogin() {
+  const jabatan = document.getElementById('apv_jabatan').value;
+  const nama    = document.getElementById('apv_nama').value.trim();
+  const sandi   = document.getElementById('apv_sandi').value;
+  const errBox  = document.getElementById('apvLoginError');
+  errBox.textContent = '';
+  if (!jabatan) { errBox.textContent = '⚠ Pilih jabatan dulu.'; return; }
+  if (!nama)    { errBox.textContent = '⚠ Nama wajib diisi.'; return; }
+  if (sandi !== APPROVAL_PASSWORDS[jabatan]) { errBox.textContent = '❌ Sandi salah.'; return; }
+  approverAuth = { jabatan, nama };
+  dbPut('settings', { key: 'approverAuth', value: approverAuth });
+  renderApprovePage();
+}
+
+function approveLogout() {
+  approverAuth = null;
+  dbPut('settings', { key: 'approverAuth', value: null });
+  renderApprovePage();
+}
+
+function approveListShellHtml() {
+  const role = APPROVAL_ROLES[approverAuth.jabatan];
+  return `
+    <div style="padding:2px 2px 14px">
+      <div style="font-size:14px;font-weight:700">Masuk sebagai <span style="color:var(--accent)">${approverAuth.nama}</span></div>
+      <div style="font-size:12px;color:var(--text2);margin-top:2px">Jabatan: ${role.label}</div>
+      <a href="javascript:void(0)" onclick="approveLogout()" style="color:var(--muted);font-size:11px;text-decoration:underline">Ganti akun</a>
+    </div>
+    <div style="display:flex;gap:8px;padding:0 2px 12px;flex-wrap:wrap">
+      <button id="approveTabBtn-pending" class="apv-tab-btn active" onclick="switchApproveTab('pending')">⏳ Menunggu <span id="approveTabCount-pending"></span></button>
+      <button id="approveTabBtn-history" class="apv-tab-btn" onclick="switchApproveTab('history')">✅ History Approve</button>
+      <button id="approveTabBtn-rekap" class="apv-tab-btn" onclick="switchApproveTab('rekap')">📊 Rekap Harian</button>
+    </div>
+    <div id="historyFilterBar" style="display:none;padding:0 2px 12px">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px">Filter Tanggal</div>
+      <div style="display:flex;gap:8px">
+        <input type="date" id="historyDateInput"
+          style="flex:1;min-width:0;padding:9px 10px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;color:var(--text);background:var(--white)"/>
+        <button class="sync-btn" style="margin-left:0;flex-shrink:0" onclick="applyHistoryDateFilter()">Terapkan</button>
+      </div>
+    </div>
+    <div id="approveListArea">${emptyStateHtml('⏳ Memuat data...')}</div>
+    <div id="rekapHarianArea" style="display:none"></div>
+  `;
+}
+
+function setupHistoryDateInput() {
+  const input = document.getElementById('historyDateInput');
+  if (!input) return;
+  const today = new Date();
+  const minD  = new Date();
+  minD.setDate(minD.getDate() - 3);
+  input.min = toYYYYMMDD(minD);
+  input.max = toYYYYMMDD(today);
+  input.value = _historyTanggal ? ddmmyyyyToYYYYMMDD(_historyTanggal) : toYYYYMMDD(today);
+}
+
+function switchApproveTab(tab) {
+  _approveTab = tab;
+  document.getElementById('approveTabBtn-pending').classList.toggle('active', tab === 'pending');
+  document.getElementById('approveTabBtn-history').classList.toggle('active', tab === 'history');
+  document.getElementById('approveTabBtn-rekap').classList.toggle('active', tab === 'rekap');
+  const filterBar  = document.getElementById('historyFilterBar');
+  const listArea   = document.getElementById('approveListArea');
+  const rekapArea  = document.getElementById('rekapHarianArea');
+  if (tab === 'pending') {
+    _approveSelectedType = null;
+    if (filterBar) filterBar.style.display = 'none';
+    listArea.style.display = 'block';
+    rekapArea.style.display = 'none';
+    if (_approveListLoaded) renderApproveList();
+    else { listArea.innerHTML = emptyStateHtml('⏳ Memuat data...'); fetchApprovalList(); }
+  } else if (tab === 'history') {
+    if (filterBar) filterBar.style.display = 'block';
+    listArea.style.display = 'block';
+    rekapArea.style.display = 'none';
+    setupHistoryDateInput();
+    if (_approveHistoryLoaded) renderApproveHistory();
+    else { listArea.innerHTML = emptyStateHtml('⏳ Memuat riwayat...'); fetchApprovalHistory(); }
+  } else {
+    if (filterBar) filterBar.style.display = 'none';
+    listArea.style.display = 'none';
+    rekapArea.style.display = 'block';
+    renderRekapHarianShell();
+  }
+}
+
+function applyHistoryDateFilter() {
+  const input = document.getElementById('historyDateInput');
+  if (!input || !input.value) return;
+  _historyTanggal = ddmmyyyyFromYYYYMMDD(input.value);
+  _approveHistoryLoaded = false;
+  document.getElementById('approveListArea').innerHTML = emptyStateHtml('⏳ Memuat riwayat...');
+  fetchApprovalHistory();
+}
+
+// ── Helper tanggal (dd/MM/yyyy <-> yyyy-MM-dd) ──
+function toYYYYMMDD(d) {
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+function todayDDMMYYYY() {
+  const now = new Date();
+  const p = n => String(n).padStart(2, '0');
+  return `${p(now.getDate())}/${p(now.getMonth() + 1)}/${now.getFullYear()}`;
+}
+function ddmmyyyyFromYYYYMMDD(s) {
+  const [y, m, d] = s.split('-');
+  return `${d}/${m}/${y}`;
+}
+function ddmmyyyyToYYYYMMDD(s) {
+  const [d, m, y] = s.split('/');
+  return `${y}-${m}-${d}`;
+}
+
+function updateApproveTabCount() {
+  const el = document.getElementById('approveTabCount-pending');
+  if (!el) return;
+  el.textContent = _approveList.length > 0 ? `(${_approveList.length})` : '';
+}
+
+function updateApproveBadge() {
+  const badge = document.getElementById('approveBadge');
+  if (!badge) return;
+  const n = _approveList.length;
+  badge.textContent = n > 99 ? '99+' : String(n);
+  badge.style.display = n > 0 ? 'block' : 'none';
+}
+
+async function fetchApprovalList() {
+  const area = document.getElementById('approveListArea');
+  if (!area) return;
+  if (!GAS_URL) { area.innerHTML = emptyStateHtml('⚠ URL GAS belum diset'); return; }
+  try {
+    const res = await fetch(GAS_URL + '?action=getApprovalList&role=' + encodeURIComponent(approverAuth.jabatan), {
+      method: 'GET', redirect: 'follow'
+    });
+    const text = await res.text();
+    let json;
+    try { json = JSON.parse(text); } catch (e) { json = { status: 'error', message: 'Response bukan JSON valid' }; }
+    if (json.status !== 'ok') {
+      area.innerHTML = emptyStateHtml('❌ ' + (json.message || 'Gagal memuat data'));
+      return;
+    }
+    _approveList = json.list || [];
+    _approveListLoaded = true;
+    updateApproveBadge();
+    updateApproveTabCount();
+    if (_approveTab === 'pending') renderApproveList();
+  } catch (e) {
+    area.innerHTML = emptyStateHtml('❌ ' + e.message);
+  }
+}
+
+function renderApproveList() {
+  const area = document.getElementById('approveListArea');
+  if (!area) return;
+  updateApproveTabCount();
+  if (_approveList.length === 0) {
+    area.innerHTML = emptyStateHtml('✅ Tidak ada yang perlu di-approve');
+    return;
+  }
+  const unitLabel = { dt:'Dump Truck', exa:'Excavator', gdv:'Grader/Dozer/Vibro', lv:'Light Vehicle' };
+  const unitIcon  = { dt:'🚛', exa:'🏗️', gdv:'🚧', lv:'🚗' };
+  const typeOrder = ['dt', 'exa', 'gdv', 'lv'];
+  const byType = {};
+  _approveList.forEach((item, idx) => {
+    const t = item.unitType;
+    if (!byType[t]) byType[t] = [];
+    byType[t].push({ item, idx });
+  });
+
+  // kalau tipe yg lagi dipilih ternyata sudah kosong (semua sudah di-approve), balik ke pilihan tipe
+  if (_approveSelectedType && !byType[_approveSelectedType]) _approveSelectedType = null;
+
+  if (!_approveSelectedType) {
+    area.innerHTML = typeOrder.filter(t => byType[t]).map(t => `
+      <div class="hist-item" onclick="selectApproveType('${t}')" style="cursor:pointer">
+        <div style="font-size:20px;align-self:center">${unitIcon[t] || ''}</div>
+        <div class="hist-item-info">
+          <div class="unit">${unitLabel[t] || t}</div>
+          <div class="meta">${byType[t].length} menunggu approve</div>
+        </div>
+        <div style="color:var(--muted);font-size:16px;align-self:center">›</div>
+      </div>
+    `).join('');
+    return;
+  }
+
+  const list = byType[_approveSelectedType] || [];
+  let html = `
+    <div class="hist-item" onclick="backToApproveTypes()" style="cursor:pointer">
+      <div style="font-size:16px;align-self:center">←</div>
+      <div class="hist-item-info">
+        <div class="unit">Kembali ke daftar tipe unit</div>
+      </div>
+    </div>
+    <div class="apv-type-h">${unitLabel[_approveSelectedType] || _approveSelectedType} (${list.length})</div>
+  `;
+  list.forEach(({ item, idx }) => {
+    const r = item.row;
+    const cfg = FORMS[item.unitType];
+    const nama = cfg ? (r[cfg.namaField] || '-') : '-';
+    const rusakBadge = item.checklistRusak > 0
+      ? `<span style="color:var(--nok);font-weight:700">⚠ ${item.checklistRusak} item rusak</span>`
+      : '';
+    html += `
+      <div class="hist-item" onclick="openApproveDetail(${idx})" style="cursor:pointer">
+        <div class="status-dot pending"></div>
+        <div class="hist-item-info">
+          <div class="unit">${r['ID Unit'] || '-'} · ${unitLabel[item.unitType] || item.unitType}</div>
+          <div class="meta-nama">${nama}</div>
+          <div class="meta">${r['Tanggal P2H'] || '-'} · Jam: ${r['Jam Pengisian P2H'] || '-'} ${rusakBadge ? '· ' + rusakBadge : ''}</div>
+        </div>
+        <div style="color:var(--muted);font-size:16px;align-self:center">›</div>
+      </div>`;
+  });
+  area.innerHTML = html;
+}
+
+function selectApproveType(type) {
+  _approveSelectedType = type;
+  renderApproveList();
+}
+function backToApproveTypes() {
+  _approveSelectedType = null;
+  renderApproveList();
+}
+
+async function openApproveDetail(idx, viewOnly) {
+  const item = (_approveTab === 'history' ? _approveHistory : _approveList)[idx];
+  if (!item) return;
+  const cfg = FORMS[item.unitType];
+  const unitLabel = { dt:'Dump Truck', exa:'Excavator', gdv:'Grader/Dozer/Vibro', lv:'Light Vehicle' };
+
+  document.getElementById('detailTitle').textContent = `${item.p2hId} · ${unitLabel[item.unitType] || item.unitType}`;
+  document.getElementById('detailModal').classList.add('show');
+
+  // getApprovalList/getApprovalHistory sekarang sudah kirim SELURUH baris
+  // (bukan cuma ringkasan) — jadi tidak perlu fetch kedua ke
+  // getApprovalDetail lagi, modal langsung dirender dari data yang
+  // sudah ada di memori. Klik item = instan, tanpa jeda jaringan.
+  const r = item.row;
+
+  const nama = cfg ? (r[cfg.namaField] || '-') : '-';
+  const total = cfg ? cfg.items.length : 0;
+  let done = 0, rusak = 0;
+  let chkHtml = '<div class="modal-chk-list">';
+  if (cfg) {
+    cfg.items.forEach((it, i) => {
+      if (cfg.sectionBreaks && cfg.sectionBreaks[i]) {
+        chkHtml += `<div class="modal-section-lbl">${cfg.sectionBreaks[i].icon} ${cfg.sectionBreaks[i].label}</div>`;
+      }
+      const val = r[it] || '';
+      if (val !== '') done++;
+      const cls = classifyChk(val);
+      if (cls === 'nok') rusak++;
+      chkHtml += `
+        <div class="modal-chk-row ${cls}">
+          <div class="modal-chk-num">${i+1}</div>
+          <div class="modal-chk-text">${it}</div>
+          <div class="modal-chk-badge ${cls}">${val || '—'}</div>
+        </div>`;
+    });
+  }
+  chkHtml += '</div>';
+
+  document.getElementById('detailBody').innerHTML = `
+    <div class="modal-meta">
+      <div class="modal-meta-item"><div class="lbl">P2H ID</div><div class="val" style="font-size:11px">${item.p2hId}</div></div>
+      <div class="modal-meta-item"><div class="lbl">Tanggal</div><div class="val">${r['Tanggal P2H'] || '-'}</div></div>
+      <div class="modal-meta-item"><div class="lbl">Jam Mulai</div><div class="val">${r['Jam Pengisian P2H'] || '-'}</div></div>
+      <div class="modal-meta-item"><div class="lbl">Jam Selesai P2H</div><div class="val">${r['Jam Selesai P2H'] || '-'}</div></div>
+      <div class="modal-meta-item"><div class="lbl">Driver/Operator</div><div class="val">${nama}</div></div>
+      <div class="modal-meta-item"><div class="lbl">${cfg?.hmLabel || 'HM/KM'}</div><div class="val">${r[cfg?.hmLabel] || '-'}</div></div>
+      <div class="modal-meta-item"><div class="lbl">Checklist</div><div class="val">${done}/${total} item</div></div>
+      <div class="modal-meta-item"><div class="lbl">Item Rusak</div><div class="val" style="color:${rusak>0?'var(--nok)':'var(--ok)'}">${rusak} item</div></div>
+    </div>
+    ${r['Keterangan Pengecekan'] ? `<div style="background:var(--bg);border-radius:9px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--text2)"><b>Keterangan:</b> ${r['Keterangan Pengecekan']}</div>` : ''}
+    ${r['Tindakan'] ? `<div style="background:var(--bg);border-radius:9px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--text2)"><b>Tindakan:</b> ${r['Tindakan']}</div>` : ''}
+    <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">Detail Checklist</div>
+    ${chkHtml}
+    ${(viewOnly && item.approvedAt) ? `
+    <div style="margin-top:14px;background:var(--ok-lt);border:1px solid #bbf7d0;border-radius:10px;padding:12px 14px">
+      <div style="font-size:12px;color:var(--text2)">${item.approvedAt}</div>
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-top:2px">${item.approvedBy || '-'}${item.approvedRoleLabel ? ' · ' + item.approvedRoleLabel : ''}</div>
+      <div style="font-size:12px;font-weight:700;color:var(--ok);margin-top:4px">✅ Disetujui</div>
+    </div>` : ''}
+    ${viewOnly ? '' : `
+    <button id="approveActionBtn" class="save-btn" style="margin-top:14px" onclick="confirmApprove(${idx})">
+      ✅ Approve sebagai ${APPROVAL_ROLES[approverAuth.jabatan].label}
+    </button>`}
+  `;
+  document.getElementById('detailModal').classList.add('show');
+}
+
+let _pendingApproveIdx = null;
+function confirmApprove(idx) {
+  const item = _approveList[idx];
+  if (!item) return;
+  _pendingApproveIdx = idx;
+  document.getElementById('confirmApproveText').textContent =
+    `Approve unit ${item.row['ID Unit'] || '-'} sebagai ${APPROVAL_ROLES[approverAuth.jabatan].label}? Data langsung masuk ke spreadsheet.`;
+  document.getElementById('confirmApproveModal').classList.add('show');
+}
+function closeConfirmApprove() {
+  document.getElementById('confirmApproveModal').classList.remove('show');
+}
+
+async function doApprove() {
+  const idx = _pendingApproveIdx;
+  closeConfirmApprove();
+  if (idx === null || idx === undefined) return;
+  const item = _approveList[idx];
+  if (!item) return;
+  if (!GAS_URL) { toast('⚠ URL GAS belum diset', 'err'); return; }
+
+  const btn = document.getElementById('approveActionBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Menyimpan...'; }
+
+  const _approveTimeoutMs = 20000;
+  const _approveAbort = new AbortController();
+  const _approveTimeoutId = setTimeout(() => _approveAbort.abort(), _approveTimeoutMs);
+
+  try {
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'approveP2H',
+        data: {
+          sheetName: item.sheetName,
+          p2hId: item.p2hId,
+          role: approverAuth.jabatan,
+          nama: approverAuth.nama,
+          password: APPROVAL_PASSWORDS[approverAuth.jabatan]
+        }
+      }),
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      redirect: 'follow',
+      signal: _approveAbort.signal
+    });
+    clearTimeout(_approveTimeoutId);
+    const text = await res.text();
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch (e) {
+      const looksLikeHtml = /^\s*</.test(text || '');
+      json = {
+        status: 'error',
+        message: looksLikeHtml
+          ? 'GAS mengembalikan halaman (bukan JSON) — kemungkinan deployment belum di-update ke versi terbaru atau butuh re-authorize. Cek Deploy > Manage deployments.'
+          : 'Response bukan JSON valid'
+      };
+    }
+
+    if (json.status === 'ok') {
+      toast(json.already ? '⚠ Sudah pernah di-approve' : '✅ Berhasil di-approve', json.already ? '' : 'ok');
+      closeDetailModal();
+      _approveList.splice(idx, 1);
+      _approveHistoryLoaded = false;
+      renderApproveList();
+      updateApproveBadge();
+    } else {
+      toast('❌ ' + (json.message || 'Gagal approve'), 'err');
+      if (btn) { btn.disabled = false; btn.innerHTML = `✅ Approve sebagai ${APPROVAL_ROLES[approverAuth.jabatan].label}`; }
+    }
+  } catch (e) {
+    clearTimeout(_approveTimeoutId);
+    const msg = e.name === 'AbortError'
+      ? `Tidak ada respons dari server dalam ${_approveTimeoutMs / 1000} detik — coba lagi, atau cek apakah GAS deployment masih aktif`
+      : e.message;
+    toast('❌ ' + msg, 'err');
+    if (btn) { btn.disabled = false; btn.innerHTML = `✅ Approve sebagai ${APPROVAL_ROLES[approverAuth.jabatan].label}`; }
+  }
+}
+
+async function fetchApprovalHistory() {
+  const area = document.getElementById('approveListArea');
+  if (!area) return;
+  if (!GAS_URL) { area.innerHTML = emptyStateHtml('⚠ URL GAS belum diset'); return; }
+  const tanggal = _historyTanggal || todayDDMMYYYY();
+  try {
+    const res = await fetch(GAS_URL + '?action=getApprovalHistory&role=' + encodeURIComponent(approverAuth.jabatan) +
+      '&tanggal=' + encodeURIComponent(tanggal), {
+      method: 'GET', redirect: 'follow'
+    });
+    const text = await res.text();
+    let json;
+    try { json = JSON.parse(text); } catch (e) { json = { status: 'error', message: 'Response bukan JSON valid' }; }
+    if (json.status !== 'ok') {
+      area.innerHTML = emptyStateHtml('❌ ' + (json.message || 'Gagal memuat riwayat'));
+      return;
+    }
+    _approveHistory = json.list || [];
+    _approveHistoryLoaded = true;
+    if (_approveTab === 'history') renderApproveHistory();
+  } catch (e) {
+    area.innerHTML = emptyStateHtml('❌ ' + e.message);
+  }
+}
+
+function renderApproveHistory() {
+  const area = document.getElementById('approveListArea');
+  if (!area) return;
+  const tanggal = _historyTanggal || todayDDMMYYYY();
+  const label = tanggal === todayDDMMYYYY() ? 'hari ini' : `tanggal ${tanggal}`;
+  if (_approveHistory.length === 0) {
+    area.innerHTML = emptyStateHtml(`Belum ada riwayat approval ${label}`);
+    return;
+  }
+  const unitLabel = { dt:'Dump Truck', exa:'Excavator', gdv:'Grader/Dozer/Vibro', lv:'Light Vehicle' };
+  let html = '';
+  _approveHistory.forEach((item, idx) => {
+    const r = item.row || {};
+    html += `
+      <div class="hist-item" onclick="openApproveDetail(${idx}, true)" style="cursor:pointer">
+        <div class="status-dot synced"></div>
+        <div class="hist-item-info">
+          <div class="unit">${r['ID Unit'] || '-'} · ${unitLabel[item.unitType] || item.unitType}</div>
+          <div class="meta-nama">${item.approvedBy ? `Disetujui: ${item.approvedBy}${item.approvedRoleLabel ? ' (' + item.approvedRoleLabel + ')' : ''}` : ''}</div>
+          <div class="meta">${r['Tanggal P2H'] || '-'} · Jam: ${r['Jam Pengisian P2H'] || '-'}</div>
+        </div>
+        <div style="color:var(--muted);font-size:16px;align-self:center">›</div>
+      </div>`;
+  });
+  area.innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════════════
 (async () => {
   await initDB();
   await loadSettings();
+  await loadApproverAuth();
+  loadMasterUnitFromCache();
   updateStats();
   updateOnlineStatus();
 
@@ -2276,10 +3487,38 @@ function updateOnlineStatus() {
 
   // Coba sync langsung saat app pertama dibuka
   setTimeout(() => tryAutoSync('app-init'), 2000);
+  setTimeout(() => syncMasterUnit(false), 2500);
 
   // Register Service Worker (Blob URL — tidak butuh file sw.js terpisah)
   await registerSW();
+
+  // Minta browser JANGAN buang cache/IndexedDB app ini duluan saat HP
+  // kehabisan storage & app lama tidak dibuka (lihat requestPersistentStorage()).
+  await requestPersistentStorage();
 })();
+
+// ══════════════════════════════════════════════════════════
+// PERSISTENT STORAGE — cegah cache/IndexedDB dibuang browser
+// Tanpa ini, kalau storage HP menipis DAN app ini lama tidak
+// dibuka/tidak di-"Add to Home Screen", browser (terutama Chrome
+// Android) boleh menghapus Cache Storage & IndexedDB origin ini
+// secara diam-diam (LRU eviction) untuk kasih ruang app lain.
+// persist() TIDAK menjamin 100% (keputusan akhir tetap di browser/
+// OS), tapi jauh mengurangi risikonya — dan kalau app sudah
+// di-"Add to Home Screen" sebagai PWA, browser modern biasanya
+// otomatis anggap storage-nya persistent walau permintaan ini gagal.
+// ══════════════════════════════════════════════════════════
+async function requestPersistentStorage() {
+  try {
+    if (!(navigator.storage && navigator.storage.persist)) return;
+    const already = await navigator.storage.persisted();
+    if (already) { console.log('[Storage] Sudah persistent'); return; }
+    const granted = await navigator.storage.persist();
+    console.log('[Storage] Persistent storage', granted ? 'diberikan' : 'ditolak browser');
+  } catch (e) {
+    console.warn('[Storage] Gagal request persistent storage:', e.message);
+  }
+}
 
 // ══════════════════════════════════════════════════════════
 // SERVICE WORKER REGISTRATION

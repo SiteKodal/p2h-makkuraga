@@ -1,31 +1,97 @@
 // ══════════════════════════════════════════════════════════
 // P2H MAKKURAGA GRUP — SERVICE WORKER
 // File ini WAJIB berada di folder yang sama dengan index.html
-// Tugasnya: kirim data P2H ke Google Sheets secara otomatis
-// bahkan saat app ditutup / HP di-lock, begitu dapat jaringan.
+// Tugasnya:
+//  1. Cache app shell (index.html, manifest, icon) supaya app
+//     bisa DIBUKA tanpa jaringan sama sekali (bukan cuma input
+//     offline — sebelumnya fetch handler kosong, jadi tanpa
+//     jaringan app-nya nggak bisa muncul sama sekali).
+//  2. Kirim data P2H ke Google Sheets secara otomatis via
+//     Background Sync, bahkan saat app ditutup / HP di-lock,
+//     begitu dapat jaringan.
 // ══════════════════════════════════════════════════════════
 
-const SW_VERSION    = 'p2h-sw-v1';
+const SW_VERSION    = 'p2h-sw-v2';
+const CACHE_NAME     = 'p2h-shell-v2'; // NAIKKAN versi ini tiap kali app di-update & redeploy,
+                                        // supaya SW ambil app shell versi baru (lihat activate di bawah).
+const APP_SHELL = [
+  './',
+  './index.html',
+  './manifest.json',
+  './favicon-32.png',
+  './apple-touch-icon.png',
+  './icon-192.png',
+  './icon-512.png',
+  './icon-maskable-512.png'
+];
 const DB_NAME       = 'P2HDB';
 const DB_VER        = 3;
 const SYNC_TAG      = 'p2h-sync';
-const GAS_URL       = 'https://script.google.com/macros/s/AKfycbx70Llx6n_hNXXX-peHEmkmx_DaimLB-AU0kmcMX7URQlDjvwJPzdVzbRhPDNjWW5Q/exec';
+// PENTING: URL ini HARUS sama persis dengan GAS_URL di index.html.
+// Sebelumnya dua-duanya beda deployment ID — akibatnya submit yang
+// gagal & di-retry background sync bisa terkirim ke deployment GAS
+// yang salah/lama tanpa kelihatan errornya. Kalau kamu ganti
+// deployment GAS, update DI DUA TEMPAT (sini dan index.html), lalu
+// naikkan SW_VERSION/CACHE_NAME di atas supaya SW lama ke-refresh.
+const GAS_URL       = 'https://script.google.com/macros/s/AKfycbxoiDtWyT9pTyOKIkrG6sIgO_qR9ibqY4vzAFQTZVSeNlyoaCfGxvKDL7_qN1WU7f4/exec';
 const RETRY_DELAYS  = [60000, 300000, 900000, 3600000]; // 1m, 5m, 15m, 1jam
 
-// ── Install & Activate ──────────────────────────────────
-self.addEventListener('install', () => {
+// ── Install: precache app shell ──────────────────────────
+self.addEventListener('install', e => {
   console.log('[SW] Install:', SW_VERSION);
+  e.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(APP_SHELL))
+      .catch(err => console.warn('[SW] Precache gagal (lanjut tanpa cache penuh):', err.message))
+  );
   self.skipWaiting(); // langsung aktif tanpa tunggu tab lama ditutup
 });
 
+// ── Activate: buang cache versi lama ─────────────────────
 self.addEventListener('activate', e => {
   console.log('[SW] Activate:', SW_VERSION);
-  e.waitUntil(self.clients.claim()); // ambil kontrol semua tab yang terbuka
+  e.waitUntil(
+    Promise.all([
+      caches.keys().then(keys =>
+        Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+      ),
+      self.clients.claim() // ambil kontrol semua tab yang terbuka
+    ])
+  );
 });
 
-// Fetch handler minimal — pass-through semua request
-// (tidak melakukan caching, cukup biarkan request jalan normal)
-self.addEventListener('fetch', () => {});
+// ── Fetch: cache-first untuk app shell, network-normal untuk sisanya ──
+// KHUSUS request GET same-origin (file app-nya sendiri) yang di-intercept.
+// Request ke GAS (script.google.com) — POST submitP2H/approveP2H dan GET
+// getMasterUnit/dashboard data — SENGAJA TIDAK disentuh sama sekali di
+// sini (dibiarkan lolos ke jaringan seperti biasa), supaya data selalu
+// fresh dan alur retry di syncOne()/doSync() di bawah tidak terganggu.
+self.addEventListener('fetch', e => {
+  const req = e.request;
+  if (req.method !== 'GET') return; // POST (submit/approve) & lainnya: lewat begitu saja
+  if (new URL(req.url).origin !== self.location.origin) return; // request ke GAS/CDN dll: lewat begitu saja
+
+  e.respondWith(
+    caches.match(req).then(cached => {
+      if (cached) return cached;
+      return fetch(req)
+        .then(res => {
+          // Simpan salinan fresh ke cache supaya makin lengkap seiring dipakai
+          if (res && res.ok) {
+            const clone = res.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
+          }
+          return res;
+        })
+        .catch(() => {
+          // Offline & tidak ada di cache: untuk navigasi halaman, fallback
+          // ke index.html yang sudah di-precache supaya app tetap kebuka.
+          if (req.mode === 'navigate') return caches.match('./index.html');
+          return new Response('', { status: 504, statusText: 'Offline & tidak ada cache' });
+        });
+    })
+  );
+});
 
 // ── Background Sync ─────────────────────────────────────
 // Browser memanggil event ini saat koneksi tersedia,
