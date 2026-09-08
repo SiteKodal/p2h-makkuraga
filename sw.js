@@ -11,8 +11,8 @@
 //     begitu dapat jaringan.
 // ══════════════════════════════════════════════════════════
 
-const SW_VERSION    = 'p2h-sw-v5';
-const CACHE_NAME     = 'p2h-shell-v5'; // NAIKKAN versi ini tiap kali app di-update & redeploy,
+const SW_VERSION    = 'p2h-sw-v6';
+const CACHE_NAME     = 'p2h-shell-v6'; // NAIKKAN versi ini tiap kali app di-update & redeploy,
                                         // supaya SW ambil app shell versi baru (lihat activate di bawah).
 const APP_SHELL = [
   './',

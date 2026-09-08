@@ -1588,7 +1588,7 @@ function _openForm(type) {
           oninput="filterUnitList()"
           onfocus="openUnitDropdown()"
           onclick="guardedFocus(this)"
-          onblur="closeUnitDropdownDelay()"
+          onblur="handleUnitBlur(this)"
           style="padding-right:36px"/>
         <span id="unitSearchClear" onclick="clearUnitSearch()"
           style="position:absolute;right:10px;top:50%;transform:translateY(-50%);
@@ -1607,7 +1607,7 @@ function _openForm(type) {
         readonly
         oninput="sanitizeHmInput(this)"
         onclick="guardedFocus(this)"
-        onblur="this.readOnly = true;"
+        onblur="handleKmBlur(this)"
         style="font-size:16px;letter-spacing:0.5px;"/>
     </div>
   </div>
@@ -1746,10 +1746,29 @@ function renderUnitList(query) {
 // sini, lalu blur+focus ulang supaya browser mau munculkan keyboard.
 function guardedFocus(el) {
   if (el.readOnly) {
+    el._skipBlurReset = true; // tandai: blur di bawah ini cuma trik internal,
+                               // BUKAN user benar-benar pindah dari field —
+                               // handler onblur masing-masing field harus abaikan ini sekali.
     el.readOnly = false;
     el.blur();
     setTimeout(() => el.focus(), 0);
   }
+}
+
+// Blur ID Unit: kalau ini blur sintetis dari guardedFocus (ketukan ke-2
+// yang lagi mau buka keyboard), JANGAN jalankan closeUnitDropdownDelay --
+// dropdown harus tetap kebuka & readonly jangan dikunci lagi, karena user
+// justru sedang mau mulai ketik. Blur asli (user pindah field beneran)
+// baru boleh nutup dropdown & kunci readonly seperti biasa.
+function handleUnitBlur(el) {
+  if (el._skipBlurReset) { el._skipBlurReset = false; return; }
+  closeUnitDropdownDelay();
+}
+
+// Blur KM: sama alasannya seperti handleUnitBlur() di atas.
+function handleKmBlur(el) {
+  if (el._skipBlurReset) { el._skipBlurReset = false; return; }
+  el.readOnly = true;
 }
 
 function filterUnitList() {
