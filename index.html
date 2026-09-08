@@ -1584,8 +1584,10 @@ function _openForm(type) {
       <div class="unit-search-wrap" id="unitSearchWrap">
         <input type="text" id="f_unit_search" autocomplete="off" autocorrect="off"
           placeholder="Ketik untuk cari ID unit..."
+          readonly
           oninput="filterUnitList()"
           onfocus="openUnitDropdown()"
+          onclick="guardedFocus(this)"
           onblur="closeUnitDropdownDelay()"
           style="padding-right:36px"/>
         <span id="unitSearchClear" onclick="clearUnitSearch()"
@@ -1602,7 +1604,10 @@ function _openForm(type) {
       <label>${cfg.hmLabel}</label>
       <input type="tel" inputmode="decimal" pattern="[0-9]*" id="f_hm"
         placeholder="Masukkan angka ${cfg.hmLabel}..."
+        readonly
         oninput="sanitizeHmInput(this)"
+        onclick="guardedFocus(this)"
+        onblur="this.readOnly = true;"
         style="font-size:16px;letter-spacing:0.5px;"/>
     </div>
   </div>
@@ -1733,6 +1738,20 @@ function renderUnitList(query) {
     </div>`).join('');
 }
 
+// FIX: cegah keyboard virtual langsung muncul saat field ID Unit / KM
+// diketuk pertama kali. Field dirender `readonly` secara default, jadi
+// ketukan pertama cuma fokus + (untuk ID Unit) buka dropdown pilihan,
+// TANPA keyboard. Kalau user memang mau ketik manual (mis. cari ID unit
+// atau koreksi angka KM), ketuk sekali lagi -- readonly baru dilepas di
+// sini, lalu blur+focus ulang supaya browser mau munculkan keyboard.
+function guardedFocus(el) {
+  if (el.readOnly) {
+    el.readOnly = false;
+    el.blur();
+    setTimeout(() => el.focus(), 0);
+  }
+}
+
 function filterUnitList() {
   const q = document.getElementById('f_unit_search').value;
   renderUnitList(q);
@@ -1794,6 +1813,9 @@ function closeUnitDropdownDelay() {
       if (clear) clear.style.display = 'none';
       renderUnitList('');
     }
+    // Kunci lagi ke readonly supaya ketukan berikutnya tidak langsung
+    // memicu keyboard (lihat guardedFocus()).
+    if (search) search.readOnly = true;
   }, 200);
 }
 
