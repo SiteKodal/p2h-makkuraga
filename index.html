@@ -676,12 +676,18 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'S
         </div>
         <div class="settings-row">
           <label>Tipe Unit yang Dioperasikan</label>
-          <select id="defUnitType">
+          <select id="defUnitType" onchange="populateIdUnitSelect('defUnit', this.value)">
             <option value="">-- Pilih Tipe Unit --</option>
             <option value="dt">Dump Truck</option>
             <option value="exa">Excavator</option>
             <option value="gdv">Grader / Dozer / Vibro</option>
             <option value="lv">Light Vehicle</option>
+          </select>
+        </div>
+        <div class="settings-row">
+          <label>ID Unit Default</label>
+          <select id="defUnit" disabled>
+            <option value="">-- Pilih Tipe Unit dulu --</option>
           </select>
         </div>
       </div>
@@ -800,12 +806,18 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'S
     </div>
     <div class="form-field" style="margin-top:10px">
       <label>Tipe Unit yang Dioperasikan</label>
-      <select id="setup_unitType">
+      <select id="setup_unitType" onchange="populateIdUnitSelect('setup_idUnit', this.value)">
         <option value="">-- Pilih Tipe Unit --</option>
         <option value="dt">Dump Truck</option>
         <option value="exa">Excavator</option>
         <option value="gdv">Grader / Dozer / Vibro</option>
         <option value="lv">Light Vehicle</option>
+      </select>
+    </div>
+    <div class="form-field" style="margin-top:10px">
+      <label>ID Unit</label>
+      <select id="setup_idUnit" disabled>
+        <option value="">-- Pilih Tipe Unit dulu --</option>
       </select>
     </div>
     <button class="confirm-ok" style="width:100%;margin-top:16px;background:var(--accent);border-radius:10px;padding:12px;font-size:14px" onclick="saveSetupProfile()">
@@ -1141,11 +1153,33 @@ function dbClearAll(store) {
 // PIN supervisor — ubah nilai ini sesuai kebutuhan
 const SUPERVISOR_PIN = '1507';
 
+// FIX: isi ID Unit default di profil — sebelumnya operator harus pilih
+// ID Unit manual tiap kali buka form P2H, padahal unit yang dipakai
+// nyaris selalu sama. populateIdUnitSelect() mengisi ulang <select>
+// ID Unit sesuai daftar UNIT_OPTIONS[type] (dari master unit) setiap
+// kali tipe unit dipilih/berubah, dan mempertahankan/menandai nilai
+// yang sudah tersimpan (selectedValue) kalau masih ada di daftar.
+function populateIdUnitSelect(selectId, type, selectedValue) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  const current = selectedValue !== undefined ? selectedValue : sel.value;
+  const opts = (type && UNIT_OPTIONS[type]) ? UNIT_OPTIONS[type] : [];
+  if (!type) {
+    sel.innerHTML = '<option value="">-- Pilih Tipe Unit dulu --</option>';
+    sel.disabled = true;
+    return;
+  }
+  sel.innerHTML = '<option value="">-- Pilih ID Unit --</option>' +
+    opts.map(u => `<option value="${u}"${u === current ? ' selected' : ''}>${u}</option>`).join('');
+  sel.disabled = opts.length === 0;
+}
+
 async function loadSettings() {
   const s = await dbGet('settings', 'config');
   settings = s ? s.value : { defNama:'', defUnitType:'', defUnit:'' };
   document.getElementById('defNama').value      = settings.defNama     || '';
   document.getElementById('defUnitType').value  = settings.defUnitType || '';
+  populateIdUnitSelect('defUnit', settings.defUnitType, settings.defUnit || '');
   renderHomeUnit();
   // Tampilkan tombol ganti tipe unit hanya kalau profil sudah terisi
   const pinSec = document.getElementById('pinSection');
@@ -1155,10 +1189,13 @@ async function loadSettings() {
 async function saveSettings() {
   const nama     = document.getElementById('defNama').value.trim();
   const unitType = document.getElementById('defUnitType').value;
+  const idUnit   = document.getElementById('defUnit').value;
   if (!nama)     { toast('⚠ Nama wajib diisi', 'err'); return; }
   if (!unitType) { toast('⚠ Pilih tipe unit dulu', 'err'); return; }
+  if (!idUnit)   { toast('⚠ Pilih ID unit dulu', 'err'); return; }
   settings.defNama     = nama;
   settings.defUnitType = unitType;
+  settings.defUnit     = idUnit;
   await dbPut('settings', { key:'config', value:settings });
   toast('✅ Profil disimpan', 'ok');
   renderHomeUnit();
@@ -1172,12 +1209,15 @@ async function saveSettings() {
 async function saveSetupProfile() {
   const nama     = document.getElementById('setup_nama').value.trim();
   const unitType = document.getElementById('setup_unitType').value;
+  const idUnit   = document.getElementById('setup_idUnit').value;
   if (!nama)     { toast('⚠ Nama wajib diisi', 'err'); return; }
   if (!unitType) { toast('⚠ Pilih tipe unit dulu', 'err'); return; }
+  if (!idUnit)   { toast('⚠ Pilih ID unit dulu', 'err'); return; }
 
   // Simpan dulu ke settings sementara (belum permanen)
   settings._pendingNama     = nama;
   settings._pendingUnitType = unitType;
+  settings._pendingUnit     = idUnit;
 
   // Tutup modal setup, tampilkan konfirmasi tipe unit
   document.getElementById('setupModal').classList.remove('show');
@@ -1197,11 +1237,14 @@ async function confirmUnitSetup() {
   // Konfirmasi — simpan permanen
   settings.defNama     = settings._pendingNama;
   settings.defUnitType = settings._pendingUnitType;
+  settings.defUnit     = settings._pendingUnit;
   delete settings._pendingNama;
   delete settings._pendingUnitType;
+  delete settings._pendingUnit;
   await dbPut('settings', { key:'config', value:settings });
   document.getElementById('defNama').value     = settings.defNama;
   document.getElementById('defUnitType').value = settings.defUnitType;
+  populateIdUnitSelect('defUnit', settings.defUnitType, settings.defUnit);
   document.getElementById('confirmUnitSetup').classList.remove('show');
   const pinSec = document.getElementById('pinSection');
   if (pinSec) pinSec.style.display = 'block';
@@ -1356,6 +1399,7 @@ function submitPin() {
     const setupUnit = document.getElementById('setup_unitType');
     if (setupNama) setupNama.value = settings.defNama || '';
     if (setupUnit) setupUnit.value = settings.defUnitType || '';
+    populateIdUnitSelect('setup_idUnit', settings.defUnitType, settings.defUnit || '');
     document.getElementById('setupModal').classList.add('show');
   } else {
     document.getElementById('pinModalError').textContent = '❌ PIN salah. Coba lagi.';
@@ -1637,6 +1681,12 @@ function _openForm(type) {
   document.getElementById('page-form').scrollTop = 0;
   // Init unit search dropdown setelah form di-render
   initUnitSearch(type);
+  // Prefill ID Unit dari profil (settings.defUnit) supaya operator tidak
+  // perlu pilih ulang tiap buka form -- tetap bisa diganti manual kalau
+  // unit yang dipakai beda dari biasanya (misal ganti unit sementara).
+  if (settings.defUnit && _unitOptions.includes(settings.defUnit)) {
+    selectUnit(settings.defUnit);
+  }
 
   // Tampilkan durasi pengisian berjalan otomatis — user tidak perlu isi apa-apa
   const tickDuration = () => {
@@ -1875,7 +1925,21 @@ async function submitForm() {
     'Jam Selesai P2H':      jamSelesaiAuto,
     checklist:  {},
     status:     'pending',
-    createdAt:  new Date().toISOString()
+    createdAt:  new Date().toISOString(),
+    // FIX DOBEL INPUT: clientId digenerate SEKALI di sini, saat data
+    // pertama kali disimpan ke HP — bukan localId (itu cuma auto-increment
+    // IndexedDB per-device, bisa tabrakan antar HP) dan bukan p2hId (itu
+    // digenerate ulang oleh SERVER tiap kali submitP2H dipanggil, jadi
+    // tidak bisa dipakai server untuk tahu "ini submission yang sama atau
+    // baru"). clientId ini yang dikirim di buildPayload() sebagai
+    // 'Client ID', dan backend (submitP2H di Code.gs) skip appendRow kalau
+    // ID ini sudah pernah masuk sebelumnya — jadi walau sync ke server
+    // ke-trigger dobel (auto-sync + tombol Sync manual + retry per-record +
+    // background sync Service Worker semuanya bisa jalan untuk record yang
+    // sama), baris di sheet tetap cuma satu.
+    clientId: (window.crypto && crypto.randomUUID)
+      ? crypto.randomUUID()
+      : 'c' + Date.now() + '_' + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2)
   };
   cfg.items.forEach((item, i) => {
     const val  = checklistState[`chk_${i}`] || '';
@@ -2013,11 +2077,21 @@ function closeDetail(e) {
 // ══════════════════════════════════════════════════════════
 async function retrySingle(localId) {
   if (!GAS_URL) { toast('⚠ URL GAS belum diset', 'err'); return; }
+  // FIX DOBEL INPUT: sebelum ini retrySingle() tidak pakai _isSyncing sama
+  // sekali, jadi bisa jalan BARENGAN dengan syncAll() (auto-sync atau tombol
+  // Sync manual) untuk record yang sama persis — dua request submitP2H
+  // ke server nyaris bersamaan. Sekarang dia hormat lock yang sama.
+  // Catatan: ini TIDAK menutup semua celah — Service Worker background
+  // sync jalan di proses terpisah dan tidak bisa lihat variabel ini sama
+  // sekali, makanya pertahanan utama tetap di server (submitP2H, lewat
+  // Client ID). Lock ini cuma lapis tambahan di sisi halaman.
+  if (_isSyncing) { toast('⏳ Sedang sync, harap tunggu...', ''); return; }
   const reachable = await isGASReachable();
   if (!reachable) { toast('📡 GAS tidak bisa dijangkau', 'err'); return; }
   const records = await dbGetAll('records');
   const rec = records.find(r => r.localId === localId);
   if (!rec) return;
+  _isSyncing = true;
   toast('⏳ Mencoba sync...', '');
   try {
     const payload = buildPayload(rec);
@@ -2061,6 +2135,7 @@ async function retrySingle(localId) {
     });
     toast('❌ ' + (e.name === 'AbortError' ? 'Timeout' : e.message), 'err');
   }
+  _isSyncing = false;
   updateStats();
   renderHistory();
 }
@@ -2187,6 +2262,9 @@ function buildPayload(rec) {
     'Keterangan Pengecekan': rec['Keterangan Pengecekan'],
     'Tindakan': rec['Tindakan'],
     'Jam Selesai P2H': rec['Jam Selesai P2H'],
+    // Kunci idempotency — lihat catatan di record.clientId (tempat ini
+    // digenerate) dan di submitP2H (Code.gs, tempat ini dicek).
+    'Client ID': rec.clientId || '',
   };
   Object.assign(row, rec.checklist);
   return row;

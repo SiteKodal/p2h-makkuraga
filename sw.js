@@ -11,8 +11,8 @@
 //     begitu dapat jaringan.
 // ══════════════════════════════════════════════════════════
 
-const SW_VERSION    = 'p2h-sw-v2';
-const CACHE_NAME     = 'p2h-shell-v2'; // NAIKKAN versi ini tiap kali app di-update & redeploy,
+const SW_VERSION    = 'p2h-sw-v3';
+const CACHE_NAME     = 'p2h-shell-v3'; // NAIKKAN versi ini tiap kali app di-update & redeploy,
                                         // supaya SW ambil app shell versi baru (lihat activate di bawah).
 const APP_SHELL = [
   './',
@@ -230,6 +230,10 @@ function buildPayload(rec) {
     'Keterangan Pengecekan': rec['Keterangan Pengecekan'],
     'Tindakan':             rec['Tindakan'],
     'Jam Selesai P2H':      rec['Jam Selesai P2H'],
+    // Kunci idempotency — HARUS sama seperti buildPayload() di index.html,
+    // supaya submitP2H (Code.gs) bisa mendeteksi record yang sama walau
+    // dikirim dua jalur berbeda (foreground sync vs background sync SW).
+    'Client ID':            rec.clientId || '',
   };
   Object.assign(row, rec.checklist || {});
   return row;
