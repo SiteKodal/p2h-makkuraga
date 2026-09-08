@@ -11,8 +11,8 @@
 //     begitu dapat jaringan.
 // ══════════════════════════════════════════════════════════
 
-const SW_VERSION    = 'p2h-sw-v3';
-const CACHE_NAME     = 'p2h-shell-v3'; // NAIKKAN versi ini tiap kali app di-update & redeploy,
+const SW_VERSION    = 'p2h-sw-v4';
+const CACHE_NAME     = 'p2h-shell-v4'; // NAIKKAN versi ini tiap kali app di-update & redeploy,
                                         // supaya SW ambil app shell versi baru (lihat activate di bawah).
 const APP_SHELL = [
   './',
@@ -37,12 +37,27 @@ const GAS_URL       = 'https://script.google.com/macros/s/AKfycbxoiDtWyT9pTyOKIk
 const RETRY_DELAYS  = [60000, 300000, 900000, 3600000]; // 1m, 5m, 15m, 1jam
 
 // ── Install: precache app shell ──────────────────────────
+// FIX: cache.addAll() bersifat ATOMIC — kalau SATU SAJA dari file di
+// APP_SHELL gagal di-fetch (404 / koneksi putus sebentar saat install /
+// nama file salah-case di GitHub Pages), SELURUH precache gagal dan
+// cache berakhir KOSONG TOTAL, walau instalasi "sukses" (skipWaiting
+// tetap jalan, catch cuma nge-log). Akibatnya app bisa dari awal tidak
+// pernah punya app shell ter-cache, jadi offline langsung gagal --
+// bukan cuma gara-gara lama tidak dibuka. Diganti jadi per-file, pakai
+// allSettled supaya satu file gagal tidak menggagalkan yang lain.
 self.addEventListener('install', e => {
   console.log('[SW] Install:', SW_VERSION);
   e.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(APP_SHELL))
-      .catch(err => console.warn('[SW] Precache gagal (lanjut tanpa cache penuh):', err.message))
+    caches.open(CACHE_NAME).then(cache =>
+      Promise.allSettled(
+        APP_SHELL.map(url =>
+          cache.add(url).catch(err => {
+            console.warn('[SW] Gagal precache satu file (' + url + '):', err.message);
+            return null; // jangan biarkan satu kegagalan menggagalkan file lain
+          })
+        )
+      )
+    )
   );
   self.skipWaiting(); // langsung aktif tanpa tunggu tab lama ditutup
 });
