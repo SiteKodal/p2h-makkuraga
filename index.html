@@ -296,9 +296,10 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'S
   padding:14px; font-size:15px; font-weight:800;
   cursor:pointer; margin-top:6px;
   display:flex; align-items:center; justify-content:center; gap:8px;
-  transition:background .15s; letter-spacing:-0.2px;
+  transition:background .15s, transform .1s; letter-spacing:-0.2px;
 }
 .submit-btn:hover:not(:disabled) { background:var(--accent-dk); }
+.submit-btn:active:not(:disabled) { transform:scale(0.97); background:var(--accent-dk); }
 .submit-btn:disabled { opacity:.5; cursor:not-allowed; }
 
 /* ── HISTORY ── */
@@ -471,6 +472,7 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'S
   z-index:999; opacity:0; transition:opacity .25s;
   white-space:nowrap; max-width:88vw; text-align:center;
   box-shadow:var(--shadow-md);
+  pointer-events:none;
 }
 #toast.show { opacity:1; }
 #toast.ok-toast  { background:var(--ok); }
@@ -486,7 +488,7 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'S
 .unit-dropdown {
   display: none;
   position: absolute;
-  top: calc(100% + 4px);
+  bottom: calc(100% + 4px);
   left: 0; right: 0;
   background: var(--white);
   border: 1.5px solid var(--accent);
@@ -676,18 +678,12 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'S
         </div>
         <div class="settings-row">
           <label>Tipe Unit yang Dioperasikan</label>
-          <select id="defUnitType" onchange="populateIdUnitSelect('defUnit', this.value)">
+          <select id="defUnitType">
             <option value="">-- Pilih Tipe Unit --</option>
             <option value="dt">Dump Truck</option>
             <option value="exa">Excavator</option>
             <option value="gdv">Grader / Dozer / Vibro</option>
             <option value="lv">Light Vehicle</option>
-          </select>
-        </div>
-        <div class="settings-row">
-          <label>ID Unit Default</label>
-          <select id="defUnit" disabled>
-            <option value="">-- Pilih Tipe Unit dulu --</option>
           </select>
         </div>
       </div>
@@ -806,18 +802,12 @@ html,body { height:100%; background:var(--bg); color:var(--text); font-family:'S
     </div>
     <div class="form-field" style="margin-top:10px">
       <label>Tipe Unit yang Dioperasikan</label>
-      <select id="setup_unitType" onchange="populateIdUnitSelect('setup_idUnit', this.value)">
+      <select id="setup_unitType">
         <option value="">-- Pilih Tipe Unit --</option>
         <option value="dt">Dump Truck</option>
         <option value="exa">Excavator</option>
         <option value="gdv">Grader / Dozer / Vibro</option>
         <option value="lv">Light Vehicle</option>
-      </select>
-    </div>
-    <div class="form-field" style="margin-top:10px">
-      <label>ID Unit</label>
-      <select id="setup_idUnit" disabled>
-        <option value="">-- Pilih Tipe Unit dulu --</option>
       </select>
     </div>
     <button class="confirm-ok" style="width:100%;margin-top:16px;background:var(--accent);border-radius:10px;padding:12px;font-size:14px" onclick="saveSetupProfile()">
@@ -1179,7 +1169,6 @@ async function loadSettings() {
   settings = s ? s.value : { defNama:'', defUnitType:'', defUnit:'' };
   document.getElementById('defNama').value      = settings.defNama     || '';
   document.getElementById('defUnitType').value  = settings.defUnitType || '';
-  populateIdUnitSelect('defUnit', settings.defUnitType, settings.defUnit || '');
   renderHomeUnit();
   // Tampilkan tombol ganti tipe unit hanya kalau profil sudah terisi
   const pinSec = document.getElementById('pinSection');
@@ -1189,13 +1178,10 @@ async function loadSettings() {
 async function saveSettings() {
   const nama     = document.getElementById('defNama').value.trim();
   const unitType = document.getElementById('defUnitType').value;
-  const idUnit   = document.getElementById('defUnit').value;
   if (!nama)     { toast('⚠ Nama wajib diisi', 'err'); return; }
   if (!unitType) { toast('⚠ Pilih tipe unit dulu', 'err'); return; }
-  if (!idUnit)   { toast('⚠ Pilih ID unit dulu', 'err'); return; }
   settings.defNama     = nama;
   settings.defUnitType = unitType;
-  settings.defUnit     = idUnit;
   await dbPut('settings', { key:'config', value:settings });
   toast('✅ Profil disimpan', 'ok');
   renderHomeUnit();
@@ -1209,15 +1195,12 @@ async function saveSettings() {
 async function saveSetupProfile() {
   const nama     = document.getElementById('setup_nama').value.trim();
   const unitType = document.getElementById('setup_unitType').value;
-  const idUnit   = document.getElementById('setup_idUnit').value;
   if (!nama)     { toast('⚠ Nama wajib diisi', 'err'); return; }
   if (!unitType) { toast('⚠ Pilih tipe unit dulu', 'err'); return; }
-  if (!idUnit)   { toast('⚠ Pilih ID unit dulu', 'err'); return; }
 
   // Simpan dulu ke settings sementara (belum permanen)
   settings._pendingNama     = nama;
   settings._pendingUnitType = unitType;
-  settings._pendingUnit     = idUnit;
 
   // Tutup modal setup, tampilkan konfirmasi tipe unit
   document.getElementById('setupModal').classList.remove('show');
@@ -1237,14 +1220,11 @@ async function confirmUnitSetup() {
   // Konfirmasi — simpan permanen
   settings.defNama     = settings._pendingNama;
   settings.defUnitType = settings._pendingUnitType;
-  settings.defUnit     = settings._pendingUnit;
   delete settings._pendingNama;
   delete settings._pendingUnitType;
-  delete settings._pendingUnit;
   await dbPut('settings', { key:'config', value:settings });
   document.getElementById('defNama').value     = settings.defNama;
   document.getElementById('defUnitType').value = settings.defUnitType;
-  populateIdUnitSelect('defUnit', settings.defUnitType, settings.defUnit);
   document.getElementById('confirmUnitSetup').classList.remove('show');
   const pinSec = document.getElementById('pinSection');
   if (pinSec) pinSec.style.display = 'block';
@@ -1399,7 +1379,6 @@ function submitPin() {
     const setupUnit = document.getElementById('setup_unitType');
     if (setupNama) setupNama.value = settings.defNama || '';
     if (setupUnit) setupUnit.value = settings.defUnitType || '';
-    populateIdUnitSelect('setup_idUnit', settings.defUnitType, settings.defUnit || '');
     document.getElementById('setupModal').classList.add('show');
   } else {
     document.getElementById('pinModalError').textContent = '❌ PIN salah. Coba lagi.';
@@ -1744,15 +1723,27 @@ function renderUnitList(query) {
 // TANPA keyboard. Kalau user memang mau ketik manual (mis. cari ID unit
 // atau koreksi angka KM), ketuk sekali lagi -- readonly baru dilepas di
 // sini, lalu blur+focus ulang supaya browser mau munculkan keyboard.
+//
+// FIX (09/09/2026): versi lama cuma cek `el.readOnly` (true/false), BUKAN
+// "ini ketukan keberapa" -- akibatnya karena field selalu mulai dari
+// readonly=true, ketukan PERTAMA pun langsung lolos kondisi ini dan
+// langsung melepas readonly + focus ulang, jadi keyboard tetap muncul
+// di ketukan pertama (padahal niatnya baru muncul di ketukan kedua).
+// Sekarang pakai flag `_primed` supaya ketukan pertama cuma "menandai",
+// ketukan kedua baru benar-benar buka keyboard.
 function guardedFocus(el) {
-  if (el.readOnly) {
-    el._skipBlurReset = true; // tandai: blur di bawah ini cuma trik internal,
-                               // BUKAN user benar-benar pindah dari field —
-                               // handler onblur masing-masing field harus abaikan ini sekali.
-    el.readOnly = false;
-    el.blur();
-    setTimeout(() => el.focus(), 0);
+  if (!el.readOnly) return; // sudah dalam mode edit, biarkan browser urus fokus normal
+  if (!el._primed) {
+    el._primed = true; // ketukan pertama: cuma fokus (onfocus attr yg buka dropdown), readonly tetap
+    return;
   }
+  el._skipBlurReset = true; // tandai: blur di bawah ini cuma trik internal,
+                             // BUKAN user benar-benar pindah dari field —
+                             // handler onblur masing-masing field harus abaikan ini sekali.
+  el._primed = false;
+  el.readOnly = false;
+  el.blur();
+  setTimeout(() => el.focus(), 0);
 }
 
 // Blur ID Unit: kalau ini blur sintetis dari guardedFocus (ketukan ke-2
@@ -1769,6 +1760,7 @@ function handleUnitBlur(el) {
 function handleKmBlur(el) {
   if (el._skipBlurReset) { el._skipBlurReset = false; return; }
   el.readOnly = true;
+  el._primed = false;
 }
 
 function filterUnitList() {
@@ -1812,6 +1804,8 @@ function closeUnitDropdown() {
   const dd = document.getElementById('unitDropdown');
   if (dd) dd.classList.remove('open');
   _unitDropdownOpen = false;
+  const search = document.getElementById('f_unit_search');
+  if (search) search._primed = false; // reset supaya lain kali dianggap ketukan pertama lagi
 }
 
 function closeUnitDropdownDelay() {
